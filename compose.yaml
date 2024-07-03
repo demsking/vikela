@@ -1,0 +1,57 @@
+---
+services:
+  couchdb:
+    image: couchdb:3.3.3
+    ports:
+      - 25984:5984
+    environment:
+      COUCHDB_USER: $COUCHDB_USER
+      COUCHDB_PASSWORD: $COUCHDB_PASSWORD
+      COUCHDB_SECRET: $COUCHDB_SECRET
+    volumes:
+      - ./deployment/couchdb/local.ini:/opt/couchdb/etc/local.d/docker.ini
+
+  server:
+    build:
+      context: .
+    depends_on:
+      - couchdb
+    user: root
+    environment:
+      TZ: 'Africa/Douala'
+      COUCHDB_URL: "http://couchdb:5984"
+      JWT_SECRET_KEY: $JWT_SECRET_KEY
+      COUCHDB_AUTH_USERNAME: $COUCHDB_AUTH_USERNAME
+      COUCHDB_AUTH_TOKEN: $COUCHDB_AUTH_TOKEN
+      LOG_LEVEL: 'debug'
+    ports:
+      - 26303:6303
+    develop:
+      watch:
+        - action: rebuild
+          path: Dockerfile
+        - action: rebuild
+          path: build/requirements.txt
+        - action: sync+restart
+          path: pyproject.toml
+          target: /opt/demanou/pyproject.toml
+        - action: sync+restart
+          path: OPENAPI-DESCRIPTION.md
+          target: /opt/demanou/OPENAPI-DESCRIPTION.md
+        - action: sync+restart
+          path: vikela
+          target: /opt/demanou/vikela
+        - action: sync+restart
+          path: vikela_core
+          target: /opt/demanou/vikela_core
+        - action: sync+restart
+          path: vikela_models
+          target: /opt/demanou/vikela_models
+        - action: rebuild
+          path: bin/
+          target: /opt/demanou/bin
+    # command: --reload --reload-dir /opt/demanou/vikela --workers 1
+    entrypoint: python /opt/demanou/vikela
+    profiles:
+      - server
+...

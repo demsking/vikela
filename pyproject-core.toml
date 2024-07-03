@@ -1,0 +1,44 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "vikela-core"
+version = "__VERSION__"
+description = "Core lib for Vikela"
+keywords = ["vikela", "core"]
+authors = ["Sébastien Demanou <demsking@gmail.com>"]
+license = "Apache-2.0"
+readme = "README-CORE.md"
+repository = "https://gitlab.com/demsking/vikela"
+documentation = "https://gitlab.com/demsking/vikela/-/blob/main/README.md"
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Software Development :: Localization",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.11",
+]
+
+packages = [
+  { include = "vikela_core" },
+]
+
+include = []
+
+[tool.poetry.urls]
+"Say Thanks!" = "https://www.buymeacoffee.com/demsking"
+"Source" = "https://gitlab.com/demsking/vikela"
+"Tracker" = "https://gitlab.com/demsking/vikela/-/issues"
+
+[[tool.poetry.source]]
+name = "test"
+url = "https://test.pypi.org/simple/"
+secondary = true
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+dataclasses-json = "^0.6.6"

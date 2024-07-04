@@ -89,4 +89,5 @@ UserDocumentType = Document[UserData, ComputedLocation, AccountMeta]
 UserDocument = UserDocumentType.create_alias_from_base_meta(
   data_cls=UserData,
   meta_cls=AccountMeta,
+  computed_cls=ComputedLocation,
 )

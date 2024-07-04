@@ -1,4 +1,4 @@
-# Contributing to Oremi Vikela
+# Contributing to Vikela
 
 ## Before Submitting an Issue
 
@@ -39,7 +39,7 @@ Therefore:
 
 ## Development Setup
 
-1. [Install The Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer)
+1. [Install Devbox](https://www.jetify.com/devbox/docs/installing_devbox/)
 
 2. [Install `direnv` with your OS package manager](https://direnv.net/docs/installation.html#from-system-packages)
 
@@ -53,8 +53,9 @@ Therefore:
    direnv allow
    ```
 
-   The next time your launch your terminal and enter the top-level of your
-   project, `direnv` will check for changes.
+   > The next time you will launch your terminal and enter the top-level of your
+   > project, `direnv` will check for changes and will automatically load the
+   > Devbox environment.
 
 5. **Install dependencies**
 
@@ -77,8 +78,7 @@ Please see the [Makefile](Makefile) for the full list of targets.
 
 ## Contribute
 
-Contributions to Oremi Vikela are welcome. Here is how you can
-contribute:
+Contributions to Vikela are welcome. Here is how you can contribute:
 
 1. [Submit bugs or a feature request](https://gitlab.com/demsking/vikela/issues)
    and help us verify fixes as they are checked in

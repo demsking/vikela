@@ -34,11 +34,11 @@ stats:
 	docker compose stats
 
 gen-tests:
-	python gen.py http://localhost:5116/openapi.json
+	python gen.py http://localhost:26303/api/openapi.json
 	pre-commit run double-quote-string-fixer
 
 test: gen-tests
-	pytest
+	dotenv -- pytest -vv
 
 coverage: gen-tests
 	pytest --cov=vikela
@@ -129,7 +129,7 @@ image: build/requirements.txt
 	  --label "org.opencontainers.image.source=$(shell python metadata.py repository)" \
 	  --label "org.opencontainers.image.url=$(shell python metadata.py repository)" \
 	  --label "org.opencontainers.image.documentation=$(shell python metadata.py documentation)" \
-	  --label "org.opencontainers.image.vendor=Oremi" \
+	  --label "org.opencontainers.image.vendor=Vikela" \
 	  --label "org.opencontainers.image.licenses=$(shell python metadata.py license)"
 
 publish: image

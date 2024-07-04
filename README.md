@@ -193,7 +193,10 @@ authenticated users can access them.
    - For Traefik: Visit `http://whoami.example.com`
    - For Nginx: Visit the domain or IP where Nginx is hosted
 
-The proxy middleware will forward requests to the authentication service first. If authenticated, it will inject proxy headers before forwarding the request to the backend service. Adjust the configurations to fit your specific requirements and environment.
+The proxy middleware will forward requests to the authentication service first.
+If authenticated, it will inject proxy headers before forwarding the request to
+the backend service. Adjust the configurations to fit your specific requirements
+and environment.
 
 ## Contribute
 

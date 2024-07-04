@@ -29,8 +29,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 existing_fixtures = ['uid', 'docid']
 
 
+def starts_with_number(string: str) -> bool:
+  return string[0].isdigit()
+
+
 # Function to load OpenAPI spec from a URL
-def load_openapi_spec(url):
+def load_openapi_spec(url: str):
   logging.info(f'Loading OpenAPI spec from {url}')
   response = httpx.get(url)
   response.raise_for_status()
@@ -53,31 +57,20 @@ def get_existing_tests(directory):
 
 # Function to create test file content
 def create_test_content(tag, endpoint_name, path, method, details, base_url):
-  content = """import os
-
-from fastapi.testclient import TestClient
-
-from vikela import api
-
-
-client = TestClient(api, backend='asyncio', headers={
-  'X-Auth-Token': os.getenv('VIKELA_TOKEN'),
-  'X-Auth-Secret': os.getenv('VIKELA_SECRET'),
-})
-
-"""
+  content = 'import pytest\nfrom fastapi.testclient import TestClient\n\n'
   operation_id = details.get('operationId', f"{method}_{path.replace('/', '_')}")
   summary = details.get('summary', operation_id)
 
   # Handle request body examples
-  fixture_names = []
+  fixture_names = ['client: TestClient']
 
   if method.lower() in ['post', 'put', 'patch']:
     schema = details.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {})
     example_str = parse_schema_example(schema)
 
     if example_str:
-      fixture_names.append(f'{operation_id}_payload')
+      fixture_name = parse_fixture_name(f'{operation_id}_payload')
+      fixture_names.append(fixture_name)
 
   # Handle parameters and query examples
   params = details.get('parameters', [])
@@ -96,7 +89,7 @@ client = TestClient(api, backend='asyncio', headers={
 
       if path_examples:
         example_value = path_examples[0]
-        fixture_name = param['name']
+        fixture_name = parse_fixture_name(param['name'])
         path_params_fixtures.append((param['name'], fixture_name))
         fixture_names.append(fixture_name)
 
@@ -106,21 +99,26 @@ client = TestClient(api, backend='asyncio', headers={
   for param_name, fixture_name in path_params_fixtures:
     formatted_path = formatted_path.replace(f'{{{param_name}}}', f'{{{fixture_name}}}')
 
+  path_value = f'{formatted_path}{query_string}'
+  path_value_prefix = 'f' if '{' in path_value else ''
+
   if method in ['patch', 'post', 'put']:
     content += f"""
-def test_{operation_id}({', '.join(fixture_names)}):
+@pytest.mark.asyncio
+async def test_{operation_id}({', '.join(fixture_names)}):
   \"\"\"{summary}\"\"\"
-  path = f"{formatted_path}{query_string}"
-  payload = {fixture_names[0] if fixture_names else '{}'}
+  path = {path_value_prefix}'{path_value}'
+  payload = {fixture_names[1] if len(fixture_names) > 1 else '{}'}
   response = client.{method}(path, json=payload)
   assert response.status_code == 200
 
 """
   else:
     content += f"""
-def test_{operation_id}({', '.join(fixture_names)}):
+@pytest.mark.asyncio
+async def test_{operation_id}({', '.join(fixture_names)}):
   \"\"\"{summary}\"\"\"
-  path = f"{formatted_path}{query_string}"
+  path = {path_value_prefix}'{path_value}'
   response = client.{method}(path)
   assert response.status_code == 200
 
@@ -154,8 +152,13 @@ def {name}():
 """
 
 
+def parse_fixture_name(name: str) -> str:
+  return f'_{name}' if starts_with_number(name) else name
+
+
 def create_params_fixtures_content(param):
   fixture_name = param.get('name')
+  fixture_name = parse_fixture_name(fixture_name)
 
   if fixture_name in existing_fixtures:
     return ''
@@ -172,7 +175,10 @@ def create_params_fixtures_content(param):
 def create_fixtures_content(paths):
   content = '\n'.join([
     '# pylint: disable=wildcard-import,unused-wildcard-import,invalid-name,line-too-long',
-    'import pytest\n\n',
+    'import pytest\n',
+    'from fastapi.testclient import TestClient\n',
+    'from vikela import api\n',
+    parse_fixture_content('client', "TestClient(api, backend='asyncio', root_path='', follow_redirects=False)"),
   ])
 
   for path, methods in paths.items():
@@ -183,6 +189,7 @@ def create_fixtures_content(paths):
         example_str = parse_schema_example(schema)
 
         fixture_name = f'{operation_id}_payload'
+        fixture_name = parse_fixture_name(fixture_name)
         content += parse_fixture_content(fixture_name, example_str)
 
         # Handle path parameter examples

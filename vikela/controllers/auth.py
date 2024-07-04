@@ -67,6 +67,7 @@ class _UserDocumentInDB(UserDocumentType):
 UserDocumentInDB = _UserDocumentInDB.create_alias_from_base_meta(
   data_cls=UserData,
   meta_cls=RegisterUserMeta,
+  computed_cls=ComputedLocation,
 )
 
 

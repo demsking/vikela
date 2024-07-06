@@ -117,7 +117,7 @@ tag_proxy = {
   This endpoint verifies the user using an OAuth2 token or session cookie. If
   the user is authenticated, it sets custom headers with user information. If
   not, it redirects to the login URL.
-  """
+  """,
 }
 
 api = FastAPI(

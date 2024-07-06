@@ -40,7 +40,7 @@ def create_account_endpoints(
     address='Douala, Cameroun',
     password='mypwd',
     gender='male',
-    date_of_birth='200-12-12',
+    date_of_birth='2002-12-12',
     phone_number='+237 663 49 77 80',
   )
 
@@ -50,7 +50,7 @@ def create_account_endpoints(
     last_name='Nyobè',
     address='Yaoundé, Centre, Cameroun',
     gender='male',
-    date_of_birth='200-12-12',
+    date_of_birth='2002-12-12',
     phone_number='+237 675 63 21 78',
   )
 

@@ -32,7 +32,7 @@ def register_user_account_post_payload():
     'email': 'um.nyobe@example.com',
     'first_name': 'Um',
     'last_name': 'Nyob\u00e8',
-    'date_of_birth': '200-12-12',
+    'date_of_birth': '2002-12-12',
     'gender': 'male',
     'address': 'Douala, Cameroun',
     'phone_number': '+237 663 49 77 80'
@@ -45,7 +45,7 @@ def update_user_data_account_profile_put_payload():
     'email': 'um.nyobe@example.com',
     'first_name': 'Um',
     'last_name': 'Nyob\u00e8',
-    'date_of_birth': '200-12-12',
+    'date_of_birth': '2002-12-12',
     'gender': 'male',
     'address': 'Yaound\u00e9, Centre, Cameroun',
     'phone_number': '+237 675 63 21 78'

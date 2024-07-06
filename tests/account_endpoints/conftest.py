@@ -47,7 +47,7 @@ def document_dict():
       'email': 'um.nyobe@example.com',
       'first_name': 'Um',
       'last_name': 'Nyobè',
-      'date_of_birth': '200-12-12',
+      'date_of_birth': '2002-12-12',
       'gender': 'male',
       'address': 'Douala, Cameroun',
       'phone_number': '+33 663 49 77 80',

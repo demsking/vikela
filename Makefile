@@ -38,7 +38,7 @@ gen-tests:
 	pre-commit run double-quote-string-fixer
 
 test: gen-tests
-	dotenv -- pytest -vv
+	pytest -vv
 
 coverage: gen-tests
 	pytest --cov=vikela
@@ -48,17 +48,37 @@ coverage-html: gen-tests
 
 .PHONY: clients
 clients:
+	mkdir -p clients/dart
 	mkdir -p clients/python
 	curl -o clients/spec.yaml http://localhost:26303/openapi.json
+
+	docker run -it --rm \
+	  -v $(PWD):/local \
+	  -w /local \
+	openapitools/openapi-generator-cli \
+	  generate \
+	    -i /local/clients/spec.yaml \
+	    -g dart \
+	    --git-host gitlab.com \
+	    --git-repo-id vikela \
+	    --git-user-id demsking \
+	    --package-name '$(APP_NAME)_client' \
+	    --http-user-agent '$(APP_NAME)/{packageVersion}' \
+	    -o /local/clients/dart
+
 	docker run -it --rm \
 	  -v $(PWD):/local \
 	  -e PYTHON_POST_PROCESS_FILE="/usr/local/bin/yapf -i" \
 	  -e PYTHONPATH=/local \
 	  -w /local \
 	openapitools/openapi-generator-cli \
-	  generate --inline-schema-name-mappings Country_Codes=NewModel,ModelA=NewModelA \
+	  generate \
 	    -i /local/clients/spec.yaml \
 	    -g python \
+	    --git-host gitlab.com \
+	    --git-repo-id vikela \
+	    --git-user-id demsking \
+	    --package-name '$(APP_NAME)_client' \
 	    -o /local/clients/python
 
 # See https://github.com/FiloSottile/mkcert

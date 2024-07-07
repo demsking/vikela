@@ -18,8 +18,8 @@ COPY vikela_models/ /opt/demanou/vikela_models
 
 USER olumulo
 
-ENV PATH="/opt/demanou/bin:$PATH"
-ENV PYTHONPATH="/opt/demanou:$PYTHONPATH"
+ENV PATH="/opt/demanou/bin"
+ENV PYTHONPATH="/opt/demanou"
 ENV PYTHONUNBUFFERED="1"
 ENV PYTHONDONTWRITEBYTECODE="1"
 

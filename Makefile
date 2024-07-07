@@ -172,9 +172,9 @@ image-test: build/requirements.txt
 	  --progress plain \
 	  --tag $(IMAGE_NAME):latest
 
-publish: image
+publish: image-test
 	git commit pyproject.toml -m "Release $(APP_VERSION)"
-	git tag v$(APP_VERSION)
-	git push --tags origin main
 # 	$(MAKE) publish-package
 	$(MAKE) multiplatform-image
+	git tag v$(APP_VERSION)
+	git push --tags origin main

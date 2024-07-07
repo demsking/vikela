@@ -135,8 +135,16 @@ build/requirements.txt: pyproject.toml poetry.lock
 	mkdir -p build/
 	poetry export --only=main --without-hashes -f requirements.txt -o $@
 
-image: build/requirements.txt
-	docker build . \
+build/context:
+	docker buildx create --name $(APP_NAME) --bootstrap
+	mkdir -p build/
+	touch $@
+
+multiplatform-image: build/requirements.txt build/context
+	docker buildx use $(APP_NAME)
+	docker buildx build . \
+	  --platform linux/amd64,linux/arm64 \
+	  --push \
 	  --progress plain \
 	  --tag $(IMAGE_NAME):$(APP_VERSION) \
 	  --tag $(IMAGE_NAME):latest \
@@ -152,10 +160,14 @@ image: build/requirements.txt
 	  --label "org.opencontainers.image.vendor=Vikela" \
 	  --label "org.opencontainers.image.licenses=$(shell python metadata.py license)"
 
+image-test: build/requirements.txt
+	docker build . \
+	  --progress plain \
+	  --tag $(IMAGE_NAME):latest
+
 publish: image
 	git commit pyproject.toml -m "Release $(APP_VERSION)"
 	git tag v$(APP_VERSION)
 	git push --tags origin main
-	$(MAKE) publish-package
-	docker push $(IMAGE_NAME):$(APP_VERSION)
-	docker push $(IMAGE_NAME):latest
+# 	$(MAKE) publish-package
+	$(MAKE) multiplatform-image

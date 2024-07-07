@@ -36,8 +36,8 @@ services:
           path: pyproject.toml
           target: /opt/demanou/pyproject.toml
         - action: sync+restart
-          path: OPENAPI-DESCRIPTION.md
-          target: /opt/demanou/OPENAPI-DESCRIPTION.md
+          path: DOCUMENTATION.md
+          target: /opt/demanou/DOCUMENTATION.md
         - action: sync+restart
           path: vikela
           target: /opt/demanou/vikela

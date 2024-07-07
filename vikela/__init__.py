@@ -42,7 +42,7 @@ SERVICE_TITLE = 'Vikela'
 
 _current_dir = os.path.dirname(os.path.abspath(__file__))
 _readme_path = os.path.realpath(
-  os.path.join(_current_dir, '..', 'OPENAPI-DESCRIPTION.md'),
+  os.path.join(_current_dir, '..', 'DOCUMENTATION.md'),
 )
 
 with open(_readme_path, 'r', encoding='utf-8') as file:

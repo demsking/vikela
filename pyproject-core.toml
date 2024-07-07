@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "vikela-core"
 version = "__VERSION__"
-description = "Core lib for Vikela"
+description = "Core library for Vikela"
 keywords = ["vikela", "core"]
 authors = ["Sébastien Demanou <demsking@gmail.com>"]
 license = "Apache-2.0"

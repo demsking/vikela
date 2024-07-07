@@ -32,7 +32,11 @@ COUCHDB_AUTH_TOKEN = getenv('COUCHDB_AUTH_TOKEN')
 
 WORKER = getenv('WORKER', default=0, expected_type=int)
 
-DEFAULT_USER_GROUPS = getenv('DEFAULT_USER_GROUPS', default='user').split(',')
+DEFAULT_USER_GROUPS = getenv(
+  name='DEFAULT_USER_GROUPS',
+  default='user',
+  expected_type=list,
+)
 
 COOKIE_SESSION_NAME = getenv(
   name='COOKIE_SESSION_NAME',
@@ -41,15 +45,15 @@ COOKIE_SESSION_NAME = getenv(
 
 COOKIE_SESSION_MAX_AGE = getenv(
   name='COOKIE_SESSION_MAX_AGE',
-  default=0,
+  default=None,
   expected_type=int,
-) or None
+)
 
 COOKIE_SESSION_EXPIRES = getenv(
   name='COOKIE_SESSION_EXPIRES',
-  default=0,
+  default=None,
   expected_type=int,
-) or None
+)
 
 COOKIE_SESSION_PATH = getenv(
   name='COOKIE_SESSION_PATH',
@@ -58,8 +62,8 @@ COOKIE_SESSION_PATH = getenv(
 
 COOKIE_SESSION_DOMAIN = getenv(
   name='COOKIE_SESSION_DOMAIN',
-  default='',
-) or None
+  default=None,
+)
 
 COOKIE_SESSION_SECURE = getenv(
   name='COOKIE_SESSION_SECURE',
@@ -75,7 +79,8 @@ COOKIE_SESSION_HTTPONLY = getenv(
 
 COOKIE_SESSION_SAMESITE = getenv(
   name='COOKIE_SESSION_SAMESITE',
-  default='lax',  # lax | strict | none
+  default='lax',
+  choices=['lax', 'strict', 'none'],
 )
 
 JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')

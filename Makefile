@@ -117,6 +117,13 @@ clean:
 	rm -rf dist/ /tmp/$(APP_NAME)
 
 #
+## Documentation
+doc/openapi-spec.yaml:
+	curl -o $@ http://localhost:26303/openapi.json
+
+doc: doc/openapi-spec.yaml
+
+#
 ## Packaging
 package: clean
 	mkdir -p /tmp/$(APP_NAME)/vikela_models/ dist/
@@ -131,7 +138,7 @@ package: clean
 publish-package: package
 	twine upload --verbose -r testpypi dist/*
 
-build/requirements.txt: pyproject.toml poetry.lock
+build/requirements.txt: poetry.lock
 	mkdir -p build/
 	poetry export --only=main --without-hashes -f requirements.txt -o $@
 

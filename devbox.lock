@@ -98,8 +98,8 @@
       }
     },
     "gnumake@latest": {
-      "last_modified": "2024-06-27T06:07:08Z",
-      "resolved": "github:NixOS/nixpkgs/1e3deb3d8a86a870d925760db1a5adecc64d329d#gnumake",
+      "last_modified": "2024-07-01T09:41:19Z",
+      "resolved": "github:NixOS/nixpkgs/b9014df496d5b68bf7c0145d0e9b0f529ce4f2a8#gnumake",
       "source": "devbox-search",
       "version": "4.4.1",
       "systems": {
@@ -177,12 +177,12 @@
               "default": true
             },
             {
-              "name": "info",
-              "path": "/nix/store/pciwycm9jbbfbhsa9wfasqbs7113m70z-gnumake-4.4.1-info"
-            },
-            {
               "name": "debug",
               "path": "/nix/store/zk2mrdl72rb81302scnj0rhb7d2dwk5a-gnumake-4.4.1-debug"
+            },
+            {
+              "name": "info",
+              "path": "/nix/store/pciwycm9jbbfbhsa9wfasqbs7113m70z-gnumake-4.4.1-info"
             }
           ],
           "store_path": "/nix/store/ggk94mjyn9zw716lqh0bb0ipl9xl271k-gnumake-4.4.1"
@@ -355,9 +355,9 @@
       }
     },
     "poetry@latest": {
-      "last_modified": "2024-06-20T08:04:27Z",
+      "last_modified": "2024-07-04T01:58:53Z",
       "plugin_version": "0.0.4",
-      "resolved": "github:NixOS/nixpkgs/9b10b8f00cb5494795e5f51b39210fed4d2b0748#poetry",
+      "resolved": "github:NixOS/nixpkgs/6842b061970bf96965d66fcc86a28e1f719aae95#poetry",
       "source": "devbox-search",
       "version": "1.8.3",
       "systems": {
@@ -365,57 +365,57 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/zp80lg9gv25mp11gh4cpwf1lg6y2jkfz-python3.11-poetry-1.8.3",
+              "path": "/nix/store/nwmfr91794p1lsp673a4f8xl4xy37ymh-python3.11-poetry-1.8.3",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/zqchk2i063xy3sp5sh3h06axbsyfb8nw-python3.11-poetry-1.8.3-dist"
+              "path": "/nix/store/skjh00paywxk2apacdmf3rwhljn5raz8-python3.11-poetry-1.8.3-dist"
             }
           ],
-          "store_path": "/nix/store/zp80lg9gv25mp11gh4cpwf1lg6y2jkfz-python3.11-poetry-1.8.3"
+          "store_path": "/nix/store/nwmfr91794p1lsp673a4f8xl4xy37ymh-python3.11-poetry-1.8.3"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/bfr58sxpgqmwci9f9ayl78lk9hwxzwch-python3.11-poetry-1.8.3",
+              "path": "/nix/store/q00xb8ghi9yhcsyxhb3cy0l36rv61j5j-python3.11-poetry-1.8.3",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/1zaizr9z3krwv6hqhmwq4d2561bncp0r-python3.11-poetry-1.8.3-dist"
+              "path": "/nix/store/d68msdq1rlxjv0wcdlaz9n8zm8lzk0ja-python3.11-poetry-1.8.3-dist"
             }
           ],
-          "store_path": "/nix/store/bfr58sxpgqmwci9f9ayl78lk9hwxzwch-python3.11-poetry-1.8.3"
+          "store_path": "/nix/store/q00xb8ghi9yhcsyxhb3cy0l36rv61j5j-python3.11-poetry-1.8.3"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/zxvpzl51m1cdmzscnwv572sfkddcia99-python3.11-poetry-1.8.3",
+              "path": "/nix/store/2nrg5f93z40sc9gnp95pykif6845jp21-python3.11-poetry-1.8.3",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/jl40ly7dk9hy886zcl5fjy1ny9g95x6b-python3.11-poetry-1.8.3-dist"
+              "path": "/nix/store/xwccywrm4vyls4bq2y1rv05r3vvzdhrd-python3.11-poetry-1.8.3-dist"
             }
           ],
-          "store_path": "/nix/store/zxvpzl51m1cdmzscnwv572sfkddcia99-python3.11-poetry-1.8.3"
+          "store_path": "/nix/store/2nrg5f93z40sc9gnp95pykif6845jp21-python3.11-poetry-1.8.3"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/8wh86kw7w4jfbp8nnws53bd5h90yc8yf-python3.11-poetry-1.8.3",
+              "path": "/nix/store/d5kk5lb785s6kf03i1ja7v7pr2ixnqxd-python3.11-poetry-1.8.3",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/qavircpagh6xk5rsdgyg67wrbp80hfcf-python3.11-poetry-1.8.3-dist"
+              "path": "/nix/store/9b2p6dicyy1iibpsbb8k3sgh1gvi7n3b-python3.11-poetry-1.8.3-dist"
             }
           ],
-          "store_path": "/nix/store/8wh86kw7w4jfbp8nnws53bd5h90yc8yf-python3.11-poetry-1.8.3"
+          "store_path": "/nix/store/d5kk5lb785s6kf03i1ja7v7pr2ixnqxd-python3.11-poetry-1.8.3"
         }
       }
     },
@@ -1157,8 +1157,8 @@
       }
     },
     "tmux@latest": {
-      "last_modified": "2024-06-14T20:22:02Z",
-      "resolved": "github:NixOS/nixpkgs/3e6b9369165397184774a4b7c5e8e5e46531b53f#tmux",
+      "last_modified": "2024-07-01T09:41:19Z",
+      "resolved": "github:NixOS/nixpkgs/b9014df496d5b68bf7c0145d0e9b0f529ce4f2a8#tmux",
       "source": "devbox-search",
       "version": "3.4",
       "systems": {
@@ -1166,61 +1166,61 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/sckl83r64arfh8jhjcp05cpxsbk0a2f3-tmux-3.4",
+              "path": "/nix/store/2jjq9bp2nqx9ciynz5wd2dha9k7q79zd-tmux-3.4",
               "default": true
             },
             {
               "name": "man",
-              "path": "/nix/store/n0zrpzv3ip7xmz36pvjrma9032wn8kda-tmux-3.4-man",
+              "path": "/nix/store/dmr1if8a1imyhvml2gq0n0b1gvfwn167-tmux-3.4-man",
               "default": true
             }
           ],
-          "store_path": "/nix/store/sckl83r64arfh8jhjcp05cpxsbk0a2f3-tmux-3.4"
+          "store_path": "/nix/store/2jjq9bp2nqx9ciynz5wd2dha9k7q79zd-tmux-3.4"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vhi251kdj3bbbliyrjhjhq5nhs1443cy-tmux-3.4",
+              "path": "/nix/store/0p0zi7151s0ni9cn35lq40r2nr5b7c0f-tmux-3.4",
               "default": true
             },
             {
               "name": "man",
-              "path": "/nix/store/12n3vrr0gn8rznxi0pgf9148w5yyczck-tmux-3.4-man",
+              "path": "/nix/store/iagrckir5ylrzf85nixphg5cmxgajbrs-tmux-3.4-man",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vhi251kdj3bbbliyrjhjhq5nhs1443cy-tmux-3.4"
+          "store_path": "/nix/store/0p0zi7151s0ni9cn35lq40r2nr5b7c0f-tmux-3.4"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/gjxwll06wxxdf090qxgrvyhsy70v0zy7-tmux-3.4",
+              "path": "/nix/store/ywd6r90hvbqps1mw7c3krjn8v380494g-tmux-3.4",
               "default": true
             },
             {
               "name": "man",
-              "path": "/nix/store/raxmkgmgaxilzw7wfhs6rrnvknwv0kk6-tmux-3.4-man",
+              "path": "/nix/store/i2v1xn8qcy60aa4ggfvbmfjxnc4686fd-tmux-3.4-man",
               "default": true
             }
           ],
-          "store_path": "/nix/store/gjxwll06wxxdf090qxgrvyhsy70v0zy7-tmux-3.4"
+          "store_path": "/nix/store/ywd6r90hvbqps1mw7c3krjn8v380494g-tmux-3.4"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/jr6k9cyg95ddwfdcr6rmrjhsx3shf7wc-tmux-3.4",
+              "path": "/nix/store/xi5az2spsaxjfj8zd2ccq21cci0rbb2i-tmux-3.4",
               "default": true
             },
             {
               "name": "man",
-              "path": "/nix/store/nlk8wq6hf12nqibws8g3953fa4g1zzsk-tmux-3.4-man",
+              "path": "/nix/store/m6rbr54x9hm622ksismk2kzh5xiha5n1-tmux-3.4-man",
               "default": true
             }
           ],
-          "store_path": "/nix/store/jr6k9cyg95ddwfdcr6rmrjhsx3shf7wc-tmux-3.4"
+          "store_path": "/nix/store/xi5az2spsaxjfj8zd2ccq21cci0rbb2i-tmux-3.4"
         }
       }
     },

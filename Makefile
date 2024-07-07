@@ -118,10 +118,10 @@ clean:
 
 #
 ## Documentation
-doc/openapi-spec.yaml:
+doc/openapi.json:
 	curl -o $@ http://localhost:26303/openapi.json
 
-doc: doc/openapi-spec.yaml
+doc: doc/openapi.json
 
 #
 ## Packaging

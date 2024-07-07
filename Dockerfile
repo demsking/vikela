@@ -1,10 +1,25 @@
+# Stage 1: Build environment
+FROM python:3.11-alpine AS build-env
+
+# Install build dependencies
+RUN apk update \
+    && apk add --no-cache \
+        build-base \
+        python3-dev \
+        libffi-dev
+
+COPY build/requirements.txt /opt/demanou/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /opt/demanou/requirements.txt
+
+# Stage 2: Runtime environment
 FROM python:3.11-alpine
 
 # Create a non-root user and group
 RUN addgroup -S olumulo && adduser -S olumulo -G olumulo
 
-COPY build/requirements.txt /opt/demanou/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /opt/demanou/requirements.txt
+# Copy built Python dependencies from the build-env stage
+COPY --from=build-env /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=build-env /usr/lib/python3.11/site-packages/ /usr/lib/python3.11/site-packages/
 
 # Binaries
 COPY bin/* /opt/demanou/bin/
@@ -23,9 +38,12 @@ ENV PYTHONPATH="/opt/demanou"
 ENV PYTHONUNBUFFERED="1"
 ENV PYTHONDONTWRITEBYTECODE="1"
 
+ARG APP_NAME
+ARG APP_VERSION
+
 ENV TZ="Africa/Douala"
 ENV ROOT_PATH="/api"
-ENV CLIENT_USERAGENT="${APP_NAME}/${APP_VERSION}"
+ENV CLIENT_USERAGENT="$APP_NAME/$APP_VERSION"
 ENV COUCHDB_URL=
 ENV COUCHDB_AUTH_ROLES="_admin"
 ENV COUCHDB_AUTH_USERNAME=

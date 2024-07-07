@@ -155,6 +155,8 @@ multiplatform-image: build/requirements.txt build/context
 	  --progress plain \
 	  --tag $(IMAGE_NAME):$(APP_VERSION) \
 	  --tag $(IMAGE_NAME):latest \
+	  --build-arg APP_NAME=$(APP_NAME) \
+	  --build-arg APP_VERSION=$(APP_VERSION) \
 	  --label "org.opencontainers.image.title=$(APP_NAME)" \
 	  --label "org.opencontainers.image.description=$(shell python metadata.py description)" \
 	  --label "org.opencontainers.image.version=$(APP_VERSION)" \
@@ -170,7 +172,9 @@ multiplatform-image: build/requirements.txt build/context
 image-test: build/requirements.txt
 	docker build . \
 	  --progress plain \
-	  --tag $(IMAGE_NAME):latest
+	  --tag $(IMAGE_NAME):latest \
+	  --build-arg APP_NAME=$(APP_NAME) \
+	  --build-arg APP_VERSION=$(APP_VERSION) \
 
 publish: image-test
 	git commit pyproject.toml -m "Release $(APP_VERSION)"

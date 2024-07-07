@@ -14,6 +14,9 @@ services:
   server:
     build:
       context: .
+      args:
+        - APP_NAME: vikela
+        - APP_VERSION: dev
     depends_on:
       - couchdb
     user: root

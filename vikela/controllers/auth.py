@@ -28,9 +28,13 @@ from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from jose import JWTError
-from oremi_core.vars import getenv
 from passlib.context import CryptContext
 
+from ..utils.config import COUCHDB_AUTH_TOKEN
+from ..utils.config import COUCHDB_AUTH_USERNAME
+from ..utils.config import DEFAULT_USER_GROUPS
+from ..utils.config import JWT_ALGORITHM
+from ..utils.config import JWT_SECRET_KEY
 from vikela_core.controller import Controller
 from vikela_core.couch import CouchDatabase
 from vikela_core.geo import Geocode
@@ -42,8 +46,8 @@ from vikela_models.user import RegisterPayload
 from vikela_models.user import UserData
 from vikela_models.user import UserDocument
 
-DEFAULT_USER_GROUPS = [
-  item.strip() for item in getenv('DEFAULT_GROUPS', default='user').split(',')
+_DEFAULT_USER_GROUPS = [
+  item.strip() for item in DEFAULT_USER_GROUPS
 ]
 
 
@@ -81,66 +85,14 @@ class AuthController(
   ENDPOINT_TOKEN = '/token'
   ENDPOINT_USER_DOCUMENT = '/account/me'
 
-  COOKIE_SESSION_NAME = getenv(
-    name='COOKIE_SESSION_NAME',
-    default='vikela-session',
-  )
-
-  COOKIE_SESSION_MAX_AGE = getenv(
-    name='COOKIE_SESSION_MAX_AGE',
-    default=0,
-    expected_type=int,
-  ) or None
-
-  COOKIE_SESSION_EXPIRES = getenv(
-    name='COOKIE_SESSION_EXPIRES',
-    default=0,
-    expected_type=int,
-  ) or None
-
-  COOKIE_SESSION_PATH = getenv(
-    name='COOKIE_SESSION_PATH',
-    default='/',
-  )
-
-  COOKIE_SESSION_DOMAIN = getenv(
-    name='COOKIE_SESSION_DOMAIN',
-    default='',
-  ) or None
-
-  COOKIE_SESSION_SECURE = getenv(
-    name='COOKIE_SESSION_SECURE',
-    default=False,
-    expected_type=bool,
-  )
-
-  COOKIE_SESSION_HTTPONLY = getenv(
-    name='COOKIE_SESSION_HTTPONLY',
-    default=True,
-    expected_type=bool,
-  )
-
-  COOKIE_SESSION_SAMESITE = getenv(
-    name='COOKIE_SESSION_SAMESITE',
-    default='lax',  # lax | strict | none
-  )
-
-  SECRET_KEY = getenv('JWT_SECRET_KEY')
-  ALGORITHM = getenv('JWT_ALGORITHM', default='HS256')  # JWT signing algorithm
-  ACCESS_TOKEN_EXPIRE_MINUTES = getenv(
-    name='JWT_ACCESS_TOKEN_EXPIRE_MINUTES',
-    default=30,
-    expected_type=int,
-  )
-
   # Crypt context for password hashing
   pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
   oauth2_token_scheme = OAuth2PasswordBearer(tokenUrl=ENDPOINT_TOKEN)
 
   vikela_auth_headers = Controller.parse_auth_headers(
-    username=getenv('COUCHDB_AUTH_USERNAME'),
-    token=getenv('COUCHDB_AUTH_TOKEN'),
+    username=COUCHDB_AUTH_USERNAME,
+    token=COUCHDB_AUTH_TOKEN,
   )
 
   def __init__(self, database: CouchDatabase, user_agent: str):
@@ -244,8 +196,8 @@ class AuthController(
 
     encoded_jwt = jwt.encode(
       claims=to_encode,
-      key=AuthController.SECRET_KEY,
-      algorithm=AuthController.ALGORITHM,
+      key=JWT_SECRET_KEY,
+      algorithm=JWT_ALGORITHM,
     )
 
     return encoded_jwt
@@ -275,8 +227,8 @@ class AuthController(
     try:
       payload = jwt.decode(
         token,
-        key=AuthController.SECRET_KEY,
-        algorithms=[AuthController.ALGORITHM],
+        key=JWT_SECRET_KEY,
+        algorithms=[JWT_ALGORITHM],
       )
 
       username: str | None = payload.get('sub', None)
@@ -391,7 +343,7 @@ class AuthController(
     )
 
     raw_document['name'] = payload.username
-    raw_document['roles'] = DEFAULT_USER_GROUPS.copy()
+    raw_document['roles'] = _DEFAULT_USER_GROUPS.copy()
 
     return raw_document
 
@@ -405,7 +357,7 @@ class AuthController(
     doc = user.to_dict()
 
     doc['name'] = payload.username
-    doc['roles'] = DEFAULT_USER_GROUPS.copy()
+    doc['roles'] = _DEFAULT_USER_GROUPS.copy()
 
     headers = AuthController.vikela_auth_headers
     result = await self.database.insert(doc, headers=headers)

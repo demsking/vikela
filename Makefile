@@ -16,16 +16,16 @@ restart:
 	docker compose restart
 
 watch: build/requirements.txt
-	docker compose --profile server watch server
+	docker compose watch server
 
 down:
-	docker compose --profile server down
+	docker compose down
 
 config:
 	docker compose config
 
 logs:
-	docker compose --profile server logs -f
+	docker compose logs -f
 
 ps:
 	docker compose ps
@@ -38,13 +38,13 @@ gen-tests:
 	pre-commit run double-quote-string-fixer
 
 test: gen-tests
-	pytest -vv
+	pytest --ignore=clients -vv
 
 coverage: gen-tests
-	pytest --cov=vikela
+	pytest --ignore=clients --cov=vikela
 
 coverage-html: gen-tests
-	pytest --cov=vikela --cov-report=html
+	pytest --ignore=clients --cov=vikela --cov-report=html
 
 .PHONY: clients
 clients:

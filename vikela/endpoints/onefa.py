@@ -24,6 +24,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from ..controllers.auth import AuthController
 from ..controllers.auth import UserDocumentInDB
+from ..utils.config import COOKIE_SESSION_DOMAIN
+from ..utils.config import COOKIE_SESSION_EXPIRES
+from ..utils.config import COOKIE_SESSION_HTTPONLY
+from ..utils.config import COOKIE_SESSION_MAX_AGE
+from ..utils.config import COOKIE_SESSION_NAME
+from ..utils.config import COOKIE_SESSION_PATH
+from ..utils.config import COOKIE_SESSION_SAMESITE
+from ..utils.config import COOKIE_SESSION_SECURE
 from ..utils.openapi import FASTAPI_401_SCHEMA
 from vikela_models.couch import OkResponse
 from vikela_models.error import ErrorResponse
@@ -138,15 +146,15 @@ def create_1fa_endpoints(
     user, access_token = await get_user_access_token(form_data)
 
     response.set_cookie(
-      key=AuthController.COOKIE_SESSION_NAME,
+      key=COOKIE_SESSION_NAME,
       value=access_token,
-      expires=AuthController.COOKIE_SESSION_EXPIRES,
-      httponly=AuthController.COOKIE_SESSION_HTTPONLY,
-      domain=AuthController.COOKIE_SESSION_DOMAIN,
-      max_age=AuthController.COOKIE_SESSION_MAX_AGE,
-      path=AuthController.COOKIE_SESSION_PATH,
-      samesite=AuthController.COOKIE_SESSION_SAMESITE,
-      secure=AuthController.COOKIE_SESSION_SECURE,
+      expires=COOKIE_SESSION_EXPIRES,
+      httponly=COOKIE_SESSION_HTTPONLY,
+      domain=COOKIE_SESSION_DOMAIN,
+      max_age=COOKIE_SESSION_MAX_AGE,
+      path=COOKIE_SESSION_PATH,
+      samesite=COOKIE_SESSION_SAMESITE,
+      secure=COOKIE_SESSION_SECURE,
     )
 
     return user.data
@@ -191,6 +199,6 @@ def create_1fa_endpoints(
     """
     Endpoint to log out a user by deleting the session cookie.
     """
-    response.delete_cookie(AuthController.COOKIE_SESSION_NAME)
+    response.delete_cookie(COOKIE_SESSION_NAME)
 
     return OkResponse(ok=True)

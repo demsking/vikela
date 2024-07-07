@@ -17,9 +17,9 @@ import logging
 import multiprocessing
 
 import uvicorn.config
-from oremi_core.vars import getenv
 
 from vikela import api
+from vikela.utils.config import WORKER
 from vikela.utils.logger import logger
 from vikela.utils.package import APP_NAME
 from vikela.utils.package import APP_VERSION
@@ -32,7 +32,7 @@ def get_log_config():
 
 def main():
   verbose = logger.isEnabledFor(logging.DEBUG)
-  workers = getenv('WORKER', default=0, expected_type=int) or multiprocessing.cpu_count()
+  workers = WORKER or multiprocessing.cpu_count()
   log_config = get_log_config() if not verbose else uvicorn.config.LOGGING_CONFIG
 
   logger.info(f'Starting {APP_NAME}/{APP_VERSION}')

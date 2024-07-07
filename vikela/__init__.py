@@ -18,7 +18,6 @@ import fastapi
 import httpx
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from oremi_core.vars import getenv
 
 from .controllers.auth import AuthController
 from .endpoints.account import create_account_endpoints
@@ -26,6 +25,10 @@ from .endpoints.onefa import create_1fa_endpoints
 from .endpoints.proxy import create_proxy_endpoints
 from .endpoints.twofa import create_2fa_endpoints
 from .endpoints.version import create_version_endpoints
+from .utils.config import CLIENT_USERAGENT
+from .utils.config import COUCHDB_AUTH_ROLES
+from .utils.config import COUCHDB_URL
+from .utils.config import ROOT_PATH
 from .utils.logger import logger
 from .utils.package import APP_NAME
 from .utils.package import APP_VERSION
@@ -127,7 +130,7 @@ api = FastAPI(
   version=APP_VERSION,
   # summary=APP_DESCRIPTION,
   description=SERVICE_DESCRIPTION,
-  root_path=getenv('BASEURL', default='/api'),
+  root_path=ROOT_PATH,
   license_info={
     'name': 'Apache 2.0',
     'url': 'http://www.apache.org/licenses/LICENSE-2.0.html',
@@ -141,20 +144,15 @@ api = FastAPI(
   ],
 )
 
-user_agent = getenv(
-  name='CLIENT_USERAGENT',
-  default=f'{APP_NAME}/{APP_VERSION}',
-)
-
 couch = CouchServer(
-  url=getenv('COUCHDB_URL'),
-  useragent=user_agent,
-  roles=getenv('COUCHDB_AUTH_ROLES', default='_admin'),
+  url=COUCHDB_URL,
+  useragent=CLIENT_USERAGENT,
+  roles=COUCHDB_AUTH_ROLES,
   logger=logger,
 )
 
 database = couch.use('_users')
-auth_controller = AuthController(database, user_agent)
+auth_controller = AuthController(database, CLIENT_USERAGENT)
 
 create_version_endpoints(tag_version['name'], api)
 create_account_endpoints(tag_account['name'], api, auth_controller)

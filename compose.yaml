@@ -52,6 +52,4 @@ services:
           target: /opt/demanou/bin
     # command: --reload --reload-dir /opt/demanou/vikela --workers 1
     entrypoint: python /opt/demanou/vikela
-    profiles:
-      - server
 ...

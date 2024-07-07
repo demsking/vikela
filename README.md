@@ -34,7 +34,7 @@ authenticated users can access them.
 ## Vikela Documentation
 
 Open the documentation URL to access the API documentation. In your web browser,
-navigate to [http://localhost:6303/docs](http://localhost:6303/docs).
+navigate to [https://demsking.gitlab.io/vikela](https://demsking.gitlab.io/vikela).
 
 ## Contribute
 

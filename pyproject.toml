@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "vikela"
-version = "1.0.0dev2"
+version = "1.0.0dev3"
 description = "Vikela sets up a robust authentication system to secure backend services using an authentication provider and various proxy middleware solutions such as Traefik, Nginx, and others"
 keywords = ["vikela", "restfull", "api"]
 authors = ["Sébastien Demanou <demsking@gmail.com>"]

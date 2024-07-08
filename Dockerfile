@@ -1,25 +1,38 @@
-# Stage 1: Build environment
-FROM python:3.11-alpine AS build-env
+#
+## Stage 1: Build environment
+FROM python:3.11-alpine3.19 AS build-env
+
+ENV PATH="/root/.local/bin:$PATH"
+ENV POETRY_HOME='/usr/local'
+ENV POETRY_VIRTUALENVS_CREATE=false
+
+# Set the shell to /bin/ash and enable pipefail
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 # Install build dependencies
 RUN apk update \
-    && apk add --no-cache \
-        build-base \
-        python3-dev \
-        libffi-dev
+  && apk add --no-cache \
+    curl=8.5.0-r0 \
+    build-base=0.5-r3 \
+    python3-dev=3.11.9-r0 \
+    libffi-dev=3.4.4-r3 \
+  && curl -sSL https://install.python-poetry.org | python3 -
 
-COPY build/requirements.txt /opt/demanou/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /opt/demanou/requirements.txt
+WORKDIR /src
+COPY poetry.lock pyproject.toml ./
+RUN poetry install --no-root --no-interaction --no-ansi --only=main
 
-# Stage 2: Runtime environment
-FROM python:3.11-alpine
+
+#
+## Stage 2: Runtime environment
+FROM python:3.11-alpine3.19
 
 # Create a non-root user and group
 RUN addgroup -S olumulo && adduser -S olumulo -G olumulo
 
 # Copy built Python dependencies from the build-env stage
 COPY --from=build-env /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
-COPY --from=build-env /usr/lib/python3.11/site-packages/ /usr/lib/python3.11/site-packages/
+COPY --from=build-env /usr/local/bin/ /usr/local/bin/
 
 # Binaries
 COPY bin/* /opt/demanou/bin/
@@ -33,8 +46,8 @@ COPY vikela_models/ /opt/demanou/vikela_models
 
 USER olumulo
 
-ENV PATH="/opt/demanou/bin"
-ENV PYTHONPATH="/opt/demanou"
+ENV PATH="/opt/demanou/bin:/usr/local/bin:$PATH"
+ENV PYTHONPATH="/opt/demanou:/usr/local/lib/python3.11/site-packages"
 ENV PYTHONUNBUFFERED="1"
 ENV PYTHONDONTWRITEBYTECODE="1"
 

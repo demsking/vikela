@@ -138,16 +138,12 @@ package: clean
 publish-package: package
 	twine upload --verbose -r testpypi dist/*
 
-build/requirements.txt: poetry.lock
-	mkdir -p build/
-	poetry export --only=main --without-hashes -f requirements.txt -o $@
-
 build/context:
 	docker buildx create --name $(APP_NAME) --bootstrap
 	mkdir -p build/
 	touch $@
 
-multiplatform-image: build/requirements.txt build/context
+multiplatform-image:  build/context
 	docker buildx use $(APP_NAME)
 	docker buildx build . \
 	  --platform linux/amd64,linux/arm64 \
@@ -169,7 +165,7 @@ multiplatform-image: build/requirements.txt build/context
 	  --label "org.opencontainers.image.vendor=Vikela" \
 	  --label "org.opencontainers.image.licenses=$(shell python metadata.py license)"
 
-image-test: build/requirements.txt
+image-test:
 	docker build . \
 	  --progress plain \
 	  --tag $(IMAGE_NAME):latest \

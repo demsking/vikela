@@ -15,8 +15,8 @@ services:
     build:
       context: .
       args:
-        - APP_NAME: vikela
-        - APP_VERSION: dev
+        APP_NAME: vikela
+        APP_VERSION: dev
     depends_on:
       - couchdb
     user: root
@@ -34,10 +34,7 @@ services:
         - action: rebuild
           path: Dockerfile
         - action: rebuild
-          path: build/requirements.txt
-        - action: sync+restart
-          path: pyproject.toml
-          target: /opt/demanou/pyproject.toml
+          path: poetry.lock
         - action: sync+restart
           path: DOCUMENTATION.md
           target: /opt/demanou/DOCUMENTATION.md

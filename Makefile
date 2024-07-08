@@ -9,13 +9,13 @@ shell:
 install:
 	poetry install
 
-up: build/requirements.txt
+up:
 	docker compose up --build -d --remove-orphans
 
 restart:
 	docker compose restart
 
-watch: build/requirements.txt
+watch:
 	docker compose watch server
 
 down:
@@ -143,7 +143,7 @@ build/context:
 	mkdir -p build/
 	touch $@
 
-multiplatform-image:  build/context
+multiplatform-image: build/context
 	docker buildx use $(APP_NAME)
 	docker buildx build . \
 	  --platform linux/amd64,linux/arm64 \
@@ -172,9 +172,9 @@ image-test:
 	  --build-arg APP_NAME=$(APP_NAME) \
 	  --build-arg APP_VERSION=$(APP_VERSION) \
 
-publish: image-test
-	git commit pyproject.toml -m "Release $(APP_VERSION)"
-# 	$(MAKE) publish-package
+publish: image-test doc
+	git commit pyproject.toml doc/ -m "Release $(APP_VERSION)"
 	$(MAKE) multiplatform-image
+# 	$(MAKE) publish-package
 	git tag v$(APP_VERSION)
 	git push --tags origin main

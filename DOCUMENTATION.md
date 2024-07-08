@@ -29,7 +29,7 @@ managing access to your applications.
 the service: to guard and protect your applications by ensuring that only
 authenticated users can access them.
 
-## Usage
+## Deployment
 
 Use the official Docker image [`demsking/vikela`](https://hub.docker.com/r/demsking/vikela)
 to run Vikela:
@@ -40,6 +40,11 @@ docker run -d --env-file <path_to_env_file> -p 6303:6303 demsking/vikela
 
 Replace `<path_to_env_file>` with the path to your environment variable file
 containing the necessary configurations.
+
+**Vikela API**
+
+Open the documentation URL to access the API documentation. In your web browser,
+navigate to [http://localhost:6303/docs](http://localhost:6303/docs).
 
 ## Configuration Variables
 

@@ -114,22 +114,32 @@ def create_proxy_endpoints(
     response: Response,
     rd: str | None = Query(
       default=None,
-      description='The optional redirection URL of the login page'
+      description='The optional redirection URL of the login page',
+      json_schema_extra={'format': 'uri'},
     ),
     authorization: str | None = Header(
       alias='Authorization',
       default=None,
-      description='Authorization token for the request, usually a Bearer token'
+      description='Authorization token for the request, usually a Bearer token',
     ),
-    x_original_url: str = Header(
-      alias='X-Original-URL',
-      description='The original URL of the request, required for verification',
-      json_schema_extra={'format': 'uri'}
+    forwarded_host: str = Header(
+      alias='X-Forwarded-Host',
+      description='The original host of the request if it was forwarded',
+      json_schema_extra={'format': 'hostname'},
     ),
-    x_forwarded_method: HTTP_METHODS | None = Header(
+    forwarded_method: HTTP_METHODS | None = Header(
       alias='X-Forwarded-Method',
       default=None,
-      description='The original HTTP method of the request if it was forwarded'
+      description='The original HTTP method of the request if it was forwarded',
+    ),
+    forwarded_proto: Literal['http', 'https'] = Header(
+      alias='X-Forwarded-Proto',
+      description='The original protocol of the request if it was forwarded',
+    ),
+    forwarded_uri: str = Header(
+      alias='X-Forwarded-URI',
+      description='The original URI of the request if it was forwarded',
+      json_schema_extra={'format': 'uri-reference'},
     ),
   ) -> Response:
     """
@@ -140,12 +150,21 @@ def create_proxy_endpoints(
     redirects to the login URL.
     """
     # Extract token from the Authorization header
+    # Make a proxy request using httpx
+    headers = dict(request.headers)
+
+    for header, value in headers.items():
+      print('---x>', header, value)
+
+    # Log the extracted headers for debugging
+    logger.info(f'Forwarded headers: host={forwarded_host}, proto={forwarded_proto}, uri={forwarded_uri}')
+
     if authorization:
       scheme, _, credentials = authorization.partition(' ')
 
       if scheme.lower() == 'bearer':
-        proxy_method = x_forwarded_method or request.method
-        proxy_url = x_original_url or str(request.url)
+        proxy_method = forwarded_method or request.method
+        original_url = f'{forwarded_proto}://{forwarded_host}{forwarded_uri}'
 
         try:
           logger.info('Authorization header found. Attempting to verify token.')
@@ -171,11 +190,11 @@ def create_proxy_endpoints(
           # Remove 'host' header to avoid conflicts with the target server
           headers.pop('host', None)
 
-          logger.info(f'Proxing request to {proxy_url} with method {proxy_method}')
+          logger.info(f'Proxing request to {original_url} with method {proxy_method}')
           async with httpx.AsyncClient() as client:
             proxy_response = await client.request(
               method=proxy_method,
-              url=proxy_url,
+              url=original_url,
               content=await request.body(),
               headers={**headers, **custom_headers},
             )
@@ -201,7 +220,7 @@ def create_proxy_endpoints(
         except HTTPException as exception:
           logger.error(f'Authentication failed - {exception}')
         except httpx.ConnectError as error:
-          logger.error(f'Error during proxing to {proxy_url} with method {proxy_method}: {error}')
+          logger.error(f'Error during proxing to {original_url} with method {proxy_method}: {error}')
           response.status_code = status.HTTP_404_NOT_FOUND
           return response
         except Exception as exception:

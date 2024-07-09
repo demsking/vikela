@@ -18,8 +18,10 @@ from fastapi import Cookie
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi import Query
 from fastapi import Response
 from fastapi import status
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ..controllers.auth import AuthController
@@ -38,7 +40,6 @@ from vikela_models.couch import OkResponse
 from vikela_models.error import ErrorResponse
 from vikela_models.user import GetAccessTokenResponse
 from vikela_models.user import RegisterPayload
-from vikela_models.user import UserData
 from vikela_models.user import UserDocumentType
 
 
@@ -135,12 +136,16 @@ def create_1fa_endpoints(
       access_token=access_token,
     )
 
-  # TODO See how to implement cookie auth
-  @api.post('/session', tags=[tag], include_in_schema=False)
+  @api.post('/session', tags=[tag])
   async def create_user_session(
     response: Response,
+    rd: str | None = Query(
+      default=None,
+      description='The optional redirection URL',
+      json_schema_extra={'format': 'uri'},
+    ),
     form_data: OAuth2PasswordRequestForm = Depends(),
-  ) -> UserData:
+  ):
     """
     Endpoint to log in a user and set the session cookie.
     """
@@ -158,12 +163,14 @@ def create_1fa_endpoints(
       secure=COOKIE_SESSION_SECURE,
     )
 
+    if rd:
+      return RedirectResponse(url=rd)
+
     return user.data
 
   @api.get(
     path='/session/me',
     tags=[tag],
-    include_in_schema=False,  # TODO See how to implement cookie auth
     responses={
       200: {
         'content': {

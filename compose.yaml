@@ -69,11 +69,9 @@ services:
       - server
     command:
       - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--log.level=DEBUG"
+      - "--api.dashboard=false"
       - "--accesslog=true"
       - "--providers.docker=true"
-      - "--providers.docker.watch=false"
       - "--providers.docker.exposedByDefault=true"
       - "--providers.docker.constraints=Label(`vikela.enable`,`true`)"
       - "--entrypoints.web.address=:80"
@@ -81,25 +79,25 @@ services:
       - "--global.checkNewVersion=false"
     ports:
       - "6380:80"
-      - "6308:8000"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    labels:
-      - "vikela.enable=true"
-      - "traefik.http.routers.traefik.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.tls.options=default"
-      - "traefik.http.routers.traefik.middlewares=vikela"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8000"
 
-  whoami:
+  public:
     image: traefik/whoami
     labels:
       - "vikela.enable=true"
-      - "traefik.http.routers.whoami.service=whoami"
-      - "traefik.http.routers.whoami.rule=PathPrefix(`/secure`)"
-      - "traefik.http.routers.whoami.entryPoints=web"
-      - "traefik.http.routers.whoami.middlewares=vikela@docker"
-      - "traefik.http.services.whoami.loadbalancer.server.port=80"
+      - "traefik.http.routers.public-whoami.service=public-whoami"
+      - "traefik.http.routers.public-whoami.rule=PathPrefix(`/public`)"
+      - "traefik.http.routers.public-whoami.entryPoints=web"
+      - "traefik.http.services.public-whoami.loadbalancer.server.port=80"
+
+  protected:
+    image: traefik/whoami
+    labels:
+      - "vikela.enable=true"
+      - "traefik.http.routers.protected-whoami.service=protected-whoami"
+      - "traefik.http.routers.protected-whoami.rule=PathPrefix(`/protected`)"
+      - "traefik.http.routers.protected-whoami.entryPoints=web"
+      - "traefik.http.routers.protected-whoami.middlewares=vikela@docker"
+      - "traefik.http.services.protected-whoami.loadbalancer.server.port=80"
 ...

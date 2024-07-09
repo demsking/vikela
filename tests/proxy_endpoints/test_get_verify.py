@@ -1,4 +1,15 @@
+from urllib.parse import urlparse
 from fastapi.testclient import TestClient
+
+
+def convert_url_to_forwarded_headers(url: str) -> dict[str, str]:
+  parsed_url = urlparse(url)
+
+  return {
+    'X-Forwarded-Proto': parsed_url.scheme,
+    'X-Forwarded-Host': parsed_url.hostname,
+    'X-Forwarded-URI': parsed_url.path + ('?' + parsed_url.query if parsed_url.query else ''),
+  }
 
 
 def test_verify_with_missing_x_original_url(client: TestClient):
@@ -10,7 +21,7 @@ def test_verify_with_missing_x_original_url(client: TestClient):
 
 def test_verify_with_provided_rd(client: TestClient):
   path = '/verify?rd=http://vikela.example.com'
-  headers = {'x-original-url': 'http://example.com'}
+  headers = convert_url_to_forwarded_headers('http://example.com')
   response = client.get(path, headers=headers)
 
   assert response.status_code == 307
@@ -20,7 +31,7 @@ def test_verify_with_provided_rd(client: TestClient):
 
 def test_verify_with_missing_rd(client: TestClient):
   path = '/verify'
-  headers = {'x-original-url': 'http://example.com'}
+  headers = convert_url_to_forwarded_headers('http://example.com')
   response = client.get(path, headers=headers)
 
   assert response.status_code == 401
@@ -28,7 +39,7 @@ def test_verify_with_missing_rd(client: TestClient):
 
 def test_verify_with_headers(client: TestClient, headers, auth_mocks):
   path = '/verify'
-  x_original_url_header = {'x-original-url': 'https://example.com'}
+  x_original_url_header = convert_url_to_forwarded_headers('http://example.com')
   response = client.get(path, headers={**headers, **x_original_url_header})
 
   assert response.status_code == 200

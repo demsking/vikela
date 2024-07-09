@@ -29,6 +29,31 @@ managing access to your applications.
 the service: to guard and protect your applications by ensuring that only
 authenticated users can access them.
 
+## Backend Setup
+
+Vikela uses CouchDB as its database backend, configured with a specific setup
+enabling Proxy Authentication. This ensures secure access to the database and
+helps maintain data integrity.
+
+To enable Proxy Authentication on the CouchDB configuration, follow the
+instructions provided in the CouchDB documentation at
+https://docs.couchdb.org/en/latest/api/server/authn.html#api-auth-proxy.
+
+### Generate Authentication Token
+
+To generate the authentication token required for accessing CouchDB, you can
+use the following command:
+
+```sh
+echo -n $COUCHDB_USER | openssl dgst -sha256 -hmac $COUCHDB_SECRET
+```
+
+This command uses OpenSSL to calculate the HMAC (Hash-based Message
+Authentication Code) using SHA-256 hashing algorithm. It takes the CouchDB
+user (`COUCHDB_USER`) as input and uses the CouchDB secret
+(`COUCHDB_SECRET`) as the secret key. Replace `COUCHDB_USER` and
+`COUCHDB_SECRET` with your actual database name and secret respectively.
+
 ## Deployment
 
 Use the official Docker image [`demsking/vikela`](https://hub.docker.com/r/demsking/vikela)
@@ -46,9 +71,10 @@ containing the necessary configurations.
 Open the documentation URL to access the API documentation. In your web browser,
 navigate to [http://localhost:6303/docs](http://localhost:6303/docs).
 
-## Configuration Variables
+### Configuration Variables
 
-Below are the configuration variables used by the application, loaded from environment variables:
+Below are the configuration variables used by the application, loaded from
+environment variables:
 
 | Variable Name                      | Description                                                                                | Default Value                 |
 |------------------------------------|--------------------------------------------------------------------------------------------|-------------------------------|
@@ -101,45 +127,44 @@ Below are the configuration variables used by the application, loaded from envir
          - "80:80"
        volumes:
          - "/var/run/docker.sock:/var/run/docker.sock"
-       networks:
-         - cloud-public
-       labels:
-         - "traefik.enable=true"
-         - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-         - "traefik.http.routers.traefik.service=api@internal"
-         - "traefik.http.routers.traefik.tls=true"
-         - "traefik.http.routers.traefik.tls.options=default"
-         - "traefik.http.routers.traefik.middlewares=vikela"
-         - "traefik.http.services.traefik.loadbalancer.server.port=8000"
 
      vikela:
        image: demsking/vikela
-       networks:
-         - cloud-public
        labels:
          - "traefik.enable=true"
          - "traefik.http.routers.vikela.service=vikela"
-         - "traefik.http.routers.vikela.rule=Host(`vikela.example.com`)"
+         - "traefik.http.routers.vikela.rule=Host(`auth.example.com`)"
          - "traefik.http.routers.vikela.entryPoints=web"
-         - "traefik.http.middlewares.vikela.forwardAuth.address=http://vikela:6303/api/verify?rd=http://vikela.example.com"
+         - "traefik.http.middlewares.vikela.forwardAuth.address=http://vikela:6303/api/verify?rd=http://auth.example.com"
          - "traefik.http.middlewares.vikela.forwardAuth.trustForwardHeader=true"
          - "traefik.http.middlewares.vikela.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
          - "traefik.http.services.vikela.loadbalancer.server.port=6303"
 
-     whoami:
+     couchdb:
+       image: couchdb:3.3.3
+       environment:
+         COUCHDB_USER: ${COUCHDB_USER?Variable not set}
+         COUCHDB_PASSWORD: ${COUCHDB_PASSWORD?Variable not set}
+         COUCHDB_SECRET: ${COUCHDB_SECRET?Variable not set}
+
+     public-service:
        image: traefik/whoami
-       networks:
-         - cloud-public
        labels:
          - "traefik.enable=true"
-         - "traefik.http.routers.whoami.service=whoami"
-         - "traefik.http.routers.whoami.rule=Host(`whoami.example.com`)"
-         - "traefik.http.routers.whoami.entryPoints=web"
-         - "traefik.http.routers.whoami.middlewares=vikela@docker"
-         - "traefik.http.services.whoami.loadbalancer.server.port=80"
+         - "traefik.http.routers.public-whoami.service=public-whoami"
+         - "traefik.http.routers.public-whoami.rule=PathPrefix(`/public`)"
+         - "traefik.http.routers.public-whoami.entryPoints=web"
+         - "traefik.http.services.public-whoami.loadbalancer.server.port=80"
 
-   networks:
-     cloud-public:
+     protected-service:
+       image: traefik/whoami
+       labels:
+         - "traefik.enable=true"
+         - "traefik.http.routers.protected-whoami.service=protected-whoami"
+         - "traefik.http.routers.protected-whoami.rule=PathPrefix(`/protected`)"
+         - "traefik.http.routers.protected-whoami.entryPoints=web"
+         - "traefik.http.routers.protected-whoami.middlewares=vikela@docker"
+         - "traefik.http.services.protected-whoami.loadbalancer.server.port=80"
    ```
 
 **Using Nginx:**
@@ -149,8 +174,6 @@ Below are the configuration variables used by the application, loaded from envir
    Create an Nginx configuration file `nginx.conf`:
 
    ```nginx
-   events {}
-
    http {
        server {
            listen 80;
@@ -159,11 +182,22 @@ Below are the configuration variables used by the application, loaded from envir
                proxy_pass http://vikela:6303/api/verify?rd=https://auth.example.com;
                proxy_set_header Host $host;
                proxy_set_header X-Real-IP $remote_addr;
-               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+               # Add the following lines to set X-Forwarded-Proto,
+               # X-Forwarded-Host, X-Forwarded-Method, and X-Forwarded-URI headers
                proxy_set_header X-Forwarded-Proto $scheme;
+               proxy_set_header X-Forwarded-Host $host;
+               proxy_set_header X-Forwarded-Method $request_method;
+               proxy_set_header X-Forwarded-URI $request_uri;
            }
 
-           location / {
+           location /public {
+               auth_request /auth;
+
+               proxy_pass http://public-service:80;
+           }
+
+           location /protected {
                auth_request /auth;
 
                # Pass the headers from the auth request to the backend service
@@ -177,7 +211,7 @@ Below are the configuration variables used by the application, loaded from envir
                proxy_set_header X-Remote-Groups $groups;
                proxy_set_header X-Remote-Name $name;
 
-               proxy_pass http://backend_service:80;
+               proxy_pass http://protected-service:80;
            }
        }
    }
@@ -196,21 +230,22 @@ Below are the configuration variables used by the application, loaded from envir
          - ./nginx.conf:/etc/nginx/nginx.conf
        ports:
          - "80:80"
-       networks:
-         - cloud-public
 
      vikela:
        image: demsking/vikela
-       networks:
-         - cloud-public
 
-     whoami:
+     couchdb:
+       image: couchdb:3.3.3
+       environment:
+         COUCHDB_USER: ${COUCHDB_USER?Variable not set}
+         COUCHDB_PASSWORD: ${COUCHDB_PASSWORD?Variable not set}
+         COUCHDB_SECRET: ${COUCHDB_SECRET?Variable not set}
+
+     public-service:
        image: traefik/whoami
-       networks:
-         - cloud-public
 
-   networks:
-     cloud-public:
+     protected-service:
+       image: traefik/whoami
    ```
 
 ### Step 2: Running the Services
@@ -223,8 +258,7 @@ Below are the configuration variables used by the application, loaded from envir
 
 2. **Access your backend service through the proxy**
 
-   - For Traefik: Visit `http://whoami.example.com`
-   - For Nginx: Visit the domain or IP where Nginx is hosted
+   Visit `http://localhost/public` and then `http://localhost/protected`
 
 The proxy middleware will forward requests to the authentication service first.
 If authenticated, it will inject proxy headers before forwarding the request to

@@ -101,11 +101,11 @@ def create_proxy_endpoints(
           },
         },
       },
-      401: {
-        'description': 'Unauthorized - User not authenticated',
-      },
       307: {
         'description': 'Temporary Redirect - User not authenticated, redirecting to login',
+      },
+      401: {
+        'description': 'Unauthorized - User not authenticated',
       },
     },
   )

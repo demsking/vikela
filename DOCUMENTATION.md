@@ -92,7 +92,10 @@ Below are the configuration variables used by the application, loaded from envir
          - vikela
        command:
          - "--api.insecure=true"
+         - "--accesslog=true"
          - "--providers.docker=true"
+         - "--providers.docker.network=cloud-public"
+         - "--providers.docker.exposedByDefault=false"
          - "--entrypoints.web.address=:80"
        ports:
          - "80:80"
@@ -102,8 +105,7 @@ Below are the configuration variables used by the application, loaded from envir
          - cloud-public
        labels:
          - "traefik.enable=true"
-         - "traefik.docker.network=cloud-public"
-         - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN?Variable not set}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+         - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
          - "traefik.http.routers.traefik.service=api@internal"
          - "traefik.http.routers.traefik.tls=true"
          - "traefik.http.routers.traefik.tls.options=default"
@@ -119,7 +121,7 @@ Below are the configuration variables used by the application, loaded from envir
          - "traefik.http.routers.vikela.service=vikela"
          - "traefik.http.routers.vikela.rule=Host(`vikela.example.com`)"
          - "traefik.http.routers.vikela.entryPoints=web"
-         - "traefik.http.middlewares.vikela.forwardAuth.address=http://vikela:6303/api/proxy/verify?rd=https://vikela.example.com"
+         - "traefik.http.middlewares.vikela.forwardAuth.address=http://vikela:6303/api/verify?rd=http://vikela.example.com"
          - "traefik.http.middlewares.vikela.forwardAuth.trustForwardHeader=true"
          - "traefik.http.middlewares.vikela.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
          - "traefik.http.services.vikela.loadbalancer.server.port=6303"
@@ -154,7 +156,7 @@ Below are the configuration variables used by the application, loaded from envir
            listen 80;
 
            location /auth {
-               proxy_pass http://vikela:6303/api/proxy/verify?rd=https://auth.example.com;
+               proxy_pass http://vikela:6303/api/verify?rd=https://auth.example.com;
                proxy_set_header Host $host;
                proxy_set_header X-Real-IP $remote_addr;
                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -53,7 +53,7 @@ class Document(Generic[Data, Computed, Meta], DataClassJsonMixin):
   _id: str = field(default_factory=lambda: str(uuid.uuid4()))
   _rev: str | None = None
   computed: Computed | None = None
-  meta: Meta = field
+  meta: Meta = field(default_factory=BaseMeta)
 
   @classmethod
   def create_alias_from_user_meta(

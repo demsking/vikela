@@ -27,6 +27,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 
 existing_fixtures = ['uid', 'docid']
+SELECTED_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head']
 
 
 def starts_with_number(string: str) -> bool:
@@ -62,15 +63,14 @@ def create_test_content(tag, endpoint_name, path, method, details, base_url):
   summary = details.get('summary', operation_id)
 
   # Handle request body examples
-  fixture_names = ['client: TestClient']
+  payload_fixture = '{}'
 
   if method.lower() in ['post', 'put', 'patch']:
     schema = details.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {})
     example_str = parse_schema_example(schema)
 
-    if example_str:
-      fixture_name = parse_fixture_name(f'{operation_id}_payload')
-      fixture_names.append(fixture_name)
+    if example_str and example_str != 'None':
+      payload_fixture = example_str
 
   # Handle parameters and query examples
   params = details.get('parameters', [])
@@ -91,7 +91,6 @@ def create_test_content(tag, endpoint_name, path, method, details, base_url):
         example_value = path_examples[0]
         fixture_name = parse_fixture_name(param['name'])
         path_params_fixtures.append((param['name'], fixture_name))
-        fixture_names.append(fixture_name)
 
   query_string = f'?{urlencode(query_params)}' if query_params else ''
   formatted_path = path
@@ -105,10 +104,10 @@ def create_test_content(tag, endpoint_name, path, method, details, base_url):
   if method in ['patch', 'post', 'put']:
     content += f"""
 @pytest.mark.asyncio
-async def test_{operation_id}({', '.join(fixture_names)}):
+async def test_{operation_id}(client: TestClient):
   \"\"\"{summary}\"\"\"
   path = {path_value_prefix}'{path_value}'
-  payload = {fixture_names[1] if len(fixture_names) > 1 else '{}'}
+  payload = {payload_fixture}
   response = client.{method}(path, json=payload)
   assert response.status_code == 200
 
@@ -116,7 +115,7 @@ async def test_{operation_id}({', '.join(fixture_names)}):
   else:
     content += f"""
 @pytest.mark.asyncio
-async def test_{operation_id}({', '.join(fixture_names)}):
+async def test_{operation_id}(client: TestClient):
   \"\"\"{summary}\"\"\"
   path = {path_value_prefix}'{path_value}'
   response = client.{method}(path)
@@ -156,51 +155,6 @@ def parse_fixture_name(name: str) -> str:
   return f'_{name}' if starts_with_number(name) else name
 
 
-def create_params_fixtures_content(param):
-  fixture_name = param.get('name')
-  fixture_name = parse_fixture_name(fixture_name)
-
-  if fixture_name in existing_fixtures:
-    return ''
-
-  existing_fixtures.append(fixture_name)
-
-  schema = param.get('schema', {})
-  example_str = parse_schema_example(schema)
-
-  return parse_fixture_content(fixture_name, example_str)
-
-
-# Function to create fixtures file content for POST method payloads and path params
-def create_fixtures_content(paths):
-  content = '\n'.join([
-    '# pylint: disable=wildcard-import,unused-wildcard-import,invalid-name,line-too-long',
-    'import pytest\n',
-    'from fastapi.testclient import TestClient\n',
-    'from vikela import api\n',
-    parse_fixture_content('client', "TestClient(api, backend='asyncio', root_path='', follow_redirects=False)"),
-  ])
-
-  for path, methods in paths.items():
-    for method, details in methods.items():
-      if method.lower() in ['post', 'put', 'patch']:
-        operation_id = details.get('operationId', f"{method}_{path.replace('/', '_')}")
-        schema = details.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {})
-        example_str = parse_schema_example(schema)
-
-        fixture_name = f'{operation_id}_payload'
-        fixture_name = parse_fixture_name(fixture_name)
-        content += parse_fixture_content(fixture_name, example_str)
-
-        # Handle path parameter examples
-        params = details.get('parameters', [])
-
-        for param in params:
-          content += create_params_fixtures_content(param)
-
-  return content
-
-
 # Function to generate test files
 def generate_tests(spec, existing_tests, base_url):
   logging.info('Generating test files from OpenAPI spec')
@@ -227,31 +181,20 @@ def generate_tests(spec, existing_tests, base_url):
 
     for path, methods in paths.items():
       for method, details in methods.items():
-        endpoint_name = path.strip('/').replace('/', '_')
-        test_file_name = f'test_{method}_{endpoint_name}.py'
-        test_file_path = tag_dir / test_file_name
+        if method in SELECTED_METHODS:
+          endpoint_name = path.strip('/').replace('/', '_')
+          test_file_name = f'test_{method}_{endpoint_name}.py'
+          test_file_path = tag_dir / test_file_name
 
-        if test_file_path.stem not in existing_tests:
-          logging.info(f'Creating test file {test_file_path}')
-          content = create_test_content(tag, endpoint_name, path, method, details, base_url)
-          with open(test_file_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-          logging.info(f'Test file {test_file_path} created successfully')
-        else:
-          logging.info(f'Test file {test_file_path} already exists, skipping')
+          if test_file_path.stem not in existing_tests:
+            logging.info(f'Creating test file {test_file_path}')
+            content = create_test_content(tag, endpoint_name, path, method, details, base_url)
 
-
-# Function to generate fixtures file
-def generate_fixtures(spec):
-  logging.info('Generating fixtures file from OpenAPI spec')
-  paths = spec.get('paths', {})
-  content = create_fixtures_content(paths)
-
-  fixtures_file_path = Path('tests/conftest.py')
-  with open(fixtures_file_path, 'w', encoding='utf-8') as f:
-    f.write(content)
-
-  logging.info(f'Fixtures file {fixtures_file_path} created successfully')
+            with open(test_file_path, 'w', encoding='utf-8') as f:
+              f.write(content)
+              logging.info(f'Test file {test_file_path} created successfully')
+          else:
+            logging.info(f'Test file {test_file_path} already exists, skipping')
 
 
 # Main script execution
@@ -267,7 +210,6 @@ def main():
   spec = load_openapi_spec(openapi_url)
   existing_tests = get_existing_tests('tests')
   generate_tests(spec, existing_tests, base_url)
-  generate_fixtures(spec)
 
 
 if __name__ == '__main__':

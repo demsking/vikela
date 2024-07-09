@@ -64,8 +64,8 @@ UserDocumentType = Document[UserData, ComputedLocation, RegisterUserMeta]
 
 @dataclass
 class _UserDocumentInDB(UserDocumentType):
-  name: str = field
-  roles: list[str] = field
+  name: str = field(default_factory=str)
+  roles: list[str] = field(default_factory=list)
 
 
 UserDocumentInDB = _UserDocumentInDB.create_alias_from_base_meta(

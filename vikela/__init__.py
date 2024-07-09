@@ -70,57 +70,7 @@ tag_2fa = {
 
 tag_proxy = {
   'name': 'Proxy Endpoints',
-  'description': """
-  Endpoints that serve as proxies for authentication and authorization, providing access token verification and user information retrieval. These endpoints manage user sessions and set custom headers based on authenticated user data.
-
-  <style>
-    .method {
-      font-size: 0.929em;
-      line-height: 20px;
-      color: rgb(255, 255, 255);
-      padding: 3px 10px;
-      text-transform: uppercase;
-      font-family: Montserrat, sans-serif;
-      margin: 0px;
-    }
-
-    .method.get {
-      background-color: rgb(47, 129, 50);
-    }
-
-    .method.post {
-      background-color: rgb(24, 111, 175);
-    }
-
-    .method.put {
-      background-color: rgb(149, 80, 124);
-    }
-
-    .method.delete {
-      background-color: rgb(204, 51, 51);
-    }
-
-    .method.patch {
-      background-color: rgb(191, 88, 29);
-    }
-  </style>
-
-  <div style="border-radius:4px;margin-bottom:3px"><div style="cursor:default;background-color: rgb(17, 23, 26);padding:10px 20px 7px;width:100%"><span type="get" class="method get">get</span><span class="sc-jXcxbT hVdkvA" style="color:#fff">/proxy/verify</span></div></div>
-
-  <div style="border-radius:4px;margin-bottom:3px"><div style="cursor:default;background-color: rgb(17, 23, 26);padding:10px 20px 7px;width:100%"><span type="post" class="method post">post</span><span class="sc-jXcxbT hVdkvA" style="color:#fff">/proxy/verify</span></div></div>
-
-  <div style="border-radius:4px;margin-bottom:3px"><div style="cursor:default;background-color: rgb(17, 23, 26);padding:10px 20px 7px;width:100%"><span type="put" class="method put">put</span><span class="sc-jXcxbT hVdkvA" style="color:#fff">/proxy/verify</span></div></div>
-
-  <div style="border-radius:4px;margin-bottom:3px"><div style="cursor:default;background-color: rgb(17, 23, 26);padding:10px 20px 7px;width:100%"><span type="delete" class="method delete">delete</span><span class="sc-jXcxbT hVdkvA" style="color:#fff">/proxy/verify</span></div></div>
-
-  <div style="border-radius:4px;margin-bottom:3px"><div style="cursor:default;background-color: rgb(17, 23, 26);padding:10px 20px 7px;width:100%"><span type="patch" class="method patch">patch</span><span class="sc-jXcxbT hVdkvA" style="color:#fff">/proxy/verify</span></div></div>
-
-  Verify user and set custom headers or redirect to login.
-
-  This endpoint verifies the user using an OAuth2 token or session cookie. If
-  the user is authenticated, it sets custom headers with user information. If
-  not, it redirects to the login URL.
-  """,
+  'description': 'Endpoints that serve as proxies for authentication and authorization, providing access token verification and user information retrieval. These endpoints manage user sessions and set custom headers based on authenticated user data.',
 }
 
 api = FastAPI(
@@ -191,7 +141,7 @@ async def transform_fastapi_error(
   error: fastapi.HTTPException,
 ) -> JSONResponse:
   response = ErrorResponse(
-    error=f'error_{error.status_code}',
+    error=f'ERROR_{error.status_code}',
     reason=error.detail,
   )
 
@@ -214,7 +164,7 @@ async def httpx_http_status_error_handler(
   return JSONResponse(
     status_code=error.response.status_code,
     content=detail if 'error' in detail and 'reason' in detail else {
-      'error': f'error_{error.response.status_code}',
+      'error': f'ERROR_{error.response.status_code}',
       'reason': str(error),
     },
   )

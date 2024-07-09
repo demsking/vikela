@@ -35,10 +35,12 @@ stats:
 
 gen-tests:
 	python gen.py http://localhost:26303/api/openapi.json
-	pre-commit run double-quote-string-fixer
 
 test: gen-tests
 	pytest --ignore=clients -vv
+
+test-watch: gen-tests
+	nodemon -e py -x 'pytest --ignore=clients -vv'
 
 coverage: gen-tests
 	pytest --ignore=clients --cov=vikela
@@ -118,9 +120,11 @@ clean:
 
 #
 ## Documentation
+.PHONY: doc/openapi.json
 doc/openapi.json:
 	curl -o $@ http://localhost:26303/openapi.json
 
+.PHONY: doc
 doc: doc/openapi.json
 
 #

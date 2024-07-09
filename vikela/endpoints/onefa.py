@@ -32,6 +32,7 @@ from ..utils.config import COOKIE_SESSION_NAME
 from ..utils.config import COOKIE_SESSION_PATH
 from ..utils.config import COOKIE_SESSION_SAMESITE
 from ..utils.config import COOKIE_SESSION_SECURE
+from ..utils.config import JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 from ..utils.openapi import FASTAPI_401_SCHEMA
 from vikela_models.couch import OkResponse
 from vikela_models.error import ErrorResponse
@@ -86,7 +87,7 @@ def create_1fa_endpoints(
       )
 
     access_token_expires = timedelta(
-      minutes=AuthController.ACCESS_TOKEN_EXPIRE_MINUTES,
+      minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES,
     )
 
     return user, auth_controller.create_access_token(

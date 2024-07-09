@@ -22,7 +22,7 @@ on_project_start: make up
 # on_project_exit: make down
 
 # Run on project stop
-# on_project_stop: make down
+on_project_stop: make down
 
 # Runs in each window and pane before window/pane specific commands. Useful for setting up interpreter versions.
 # pre_window: rbenv shell 2.0.0-p247
@@ -37,7 +37,7 @@ tmux_options: -f .tmux.conf
 startup_window: workspace
 
 # Specifies (by index) which pane of the specified window will be selected on project startup. If not set, the first pane is used.
-startup_pane: 2
+startup_pane: 3
 
 # Controls whether the tmux session should be attached to automatically. Defaults to true.
 attach: true
@@ -51,4 +51,5 @@ windows:
       panes:
         - make logs
         - make watch
+        - make test-watch
         - git status

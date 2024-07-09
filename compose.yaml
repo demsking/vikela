@@ -24,6 +24,7 @@ services:
       TZ: 'Africa/Douala'
       COUCHDB_URL: "http://couchdb:5984"
       JWT_SECRET_KEY: $JWT_SECRET_KEY
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: $JWT_ACCESS_TOKEN_EXPIRE_MINUTES
       COUCHDB_AUTH_USERNAME: $COUCHDB_AUTH_USERNAME
       COUCHDB_AUTH_TOKEN: $COUCHDB_AUTH_TOKEN
       LOG_LEVEL: 'debug'
@@ -52,4 +53,53 @@ services:
           target: /opt/demanou/bin
     # command: --reload --reload-dir /opt/demanou/vikela --workers 1
     entrypoint: python /opt/demanou/vikela
+    labels:
+      - "vikela.enable=true"
+      - "traefik.http.routers.vikela.service=vikela"
+      - "traefik.http.routers.vikela.rule=PathPrefix(`/auth`)"
+      - "traefik.http.routers.vikela.entryPoints=web"
+      - "traefik.http.middlewares.vikela.forwardAuth.address=http://server:6303/api/verify?rd=http://localhost:6380/auth"
+      - "traefik.http.middlewares.vikela.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.vikela.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
+      - "traefik.http.services.vikela.loadbalancer.server.port=6303"
+
+  traefik:
+    image: traefik:v3.0
+    depends_on:
+      - server
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+      - "--providers.docker=true"
+      - "--providers.docker.watch=false"
+      - "--providers.docker.exposedByDefault=true"
+      - "--providers.docker.constraints=Label(`vikela.enable`,`true`)"
+      - "--entrypoints.web.address=:80"
+      - "--global.sendAnonymousUsage=false"
+      - "--global.checkNewVersion=false"
+    ports:
+      - "6380:80"
+      - "6308:8000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      - "vikela.enable=true"
+      - "traefik.http.routers.traefik.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.options=default"
+      - "traefik.http.routers.traefik.middlewares=vikela"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8000"
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "vikela.enable=true"
+      - "traefik.http.routers.whoami.service=whoami"
+      - "traefik.http.routers.whoami.rule=PathPrefix(`/secure`)"
+      - "traefik.http.routers.whoami.entryPoints=web"
+      - "traefik.http.routers.whoami.middlewares=vikela@docker"
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
 ...

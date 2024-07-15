@@ -34,10 +34,12 @@ deploy documentation:
   stage: deploy
   image: python:3.11-alpine
   script:
+    - export PATH="/root/.local/bin:$PATH"
+    - export PYTHONPATH=.:/usr/local/lib/python3.11/site-packages:$PYTHONPATH
+    - export POETRY_HOME=/usr/local
+    - export POETRY_VIRTUALENVS_CREATE=false
     - apk add --no-cache curl
     - curl -sSL https://install.python-poetry.org | python3 -
-    - export PATH="/root/.local/bin:$PATH"
-    - export PYTHONPATH=.:.venv/lib/python3.11/site-packages:$PYTHONPATH
     - poetry install
     - pip install "python-dotenv[cli]"
     - dotenv -f .env run python generate-openapi.py

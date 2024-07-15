@@ -37,8 +37,9 @@ deploy documentation:
     - apk add --no-cache curl
     - curl -sSL https://install.python-poetry.org | python3 -
     - export PATH="/root/.local/bin:$PATH"
-    - poetry install
     - export PYTHONPATH=.:.venv/lib/python3.11/site-packages:$PYTHONPATH
+    - poetry install
+    - pip install "python-dotenv[cli]"
     - dotenv -f .env run python generate-openapi.py
   artifacts:
     paths:

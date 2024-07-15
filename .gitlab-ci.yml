@@ -30,7 +30,7 @@ sast:
 include:
   - template: Security/SAST.gitlab-ci.yml
 
-deploy documentation:
+generate documentation:
   stage: deploy
   image: python:3.11-alpine
   script:
@@ -43,6 +43,7 @@ deploy documentation:
     - poetry install
     - pip install "python-dotenv[cli]"
     - dotenv -f .env run python generate-openapi.py
+    - cp -r doc/ public/
   artifacts:
     paths:
       - public

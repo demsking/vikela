@@ -122,7 +122,7 @@ clean:
 ## Documentation
 .PHONY: doc/openapi.json
 doc/openapi.json:
-	curl -o $@ http://localhost:26303/openapi.json
+	python generate-openapi.py
 
 .PHONY: doc
 doc: doc/openapi.json

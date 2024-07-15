@@ -30,10 +30,16 @@ sast:
 include:
   - template: Security/SAST.gitlab-ci.yml
 
-pages:
+deploy documentation:
   stage: deploy
+  image: python:3.11-alpine
   script:
-    - cp -r doc/ public/
+    - apk add --no-cache curl
+    - curl -sSL https://install.python-poetry.org | python3 -
+    - export PATH="/root/.local/bin:$PATH"
+    - poetry install
+    - export PYTHONPATH=.:.venv/lib/python3.11/site-packages:$PYTHONPATH
+    - dotenv -f .env run python generate-openapi.py
   artifacts:
     paths:
       - public

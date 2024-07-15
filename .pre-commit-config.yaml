@@ -73,14 +73,6 @@ repos:
         entry: hadolint
         language: system
         files: Dockerfile
-      - id: generate-openapi-spec
-        name: 'Generate openapi spec'
-        description: 'Runs `make doc` to generate the openapi spec.'
-        entry: make
-        language: system
-        args: [
-          'doc',
-        ]
       - id: autopep8
         name: 'Fix Python Code Style using AutoPEP8'
         description: 'Runs `autopep8` to format Python code according to PEP 8 standards.'

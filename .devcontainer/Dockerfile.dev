@@ -10,7 +10,7 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 # Install dependencies
 RUN apk update \
-  && apk add --no-cache curl git
+  && apk add --no-cache curl git make
 
 # Install Poetry for the root user (temporarily)
 RUN curl -sSL https://install.python-poetry.org | python -

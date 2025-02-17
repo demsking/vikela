@@ -1,4 +1,4 @@
-# Copyright 2024 Sébastien Demanou. All Rights Reserved.
+# Copyright 2024-2025 Sébastien Demanou. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +15,17 @@
 # pylint: disable=wildcard-import,unused-wildcard-import,invalid-name,line-too-long
 import json
 import logging
-import sys
 from pathlib import Path
 from urllib.parse import urlencode
-from urllib.parse import urlparse
 
-import httpx
+from fastapi.testclient import TestClient
+from server import api
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 existing_fixtures = ['uid', 'docid']
-SELECTED_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head']
 
 
 def starts_with_number(string: str) -> bool:
@@ -35,11 +33,18 @@ def starts_with_number(string: str) -> bool:
 
 
 # Function to load OpenAPI spec from a URL
-def load_openapi_spec(url: str):
-  logging.info(f'Loading OpenAPI spec from {url}')
-  response = httpx.get(url)
-  response.raise_for_status()
+def load_openapi_spec():
+  logging.info('Loading OpenAPI spec')
+  client = TestClient(
+    api,
+    backend='asyncio',
+    root_path='',
+    follow_redirects=False,
+  )
+
+  response = client.get('/openapi.json')
   logging.info('OpenAPI spec loaded successfully')
+
   return response.json()
 
 
@@ -57,20 +62,27 @@ def get_existing_tests(directory):
 
 
 # Function to create test file content
-def create_test_content(tag, endpoint_name, path, method, details, base_url):
-  content = 'import pytest\nfrom fastapi.testclient import TestClient\n\n'
+def create_test_content(tag, endpoint_name, path, method, details):
+  content = """from fastapi.testclient import TestClient
+
+from vikela import api
+
+
+client = TestClient(api, backend='asyncio')
+
+"""
   operation_id = details.get('operationId', f"{method}_{path.replace('/', '_')}")
   summary = details.get('summary', operation_id)
 
   # Handle request body examples
-  payload_fixture = '{}'
+  fixture_names = []
 
   if method.lower() in ['post', 'put', 'patch']:
     schema = details.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {})
     example_str = parse_schema_example(schema)
 
-    if example_str and example_str != 'None':
-      payload_fixture = example_str
+    if example_str:
+      fixture_names.append(f'{operation_id}_payload')
 
   # Handle parameters and query examples
   params = details.get('parameters', [])
@@ -89,8 +101,9 @@ def create_test_content(tag, endpoint_name, path, method, details, base_url):
 
       if path_examples:
         example_value = path_examples[0]
-        fixture_name = parse_fixture_name(param['name'])
+        fixture_name = param['name']
         path_params_fixtures.append((param['name'], fixture_name))
+        fixture_names.append(fixture_name)
 
   query_string = f'?{urlencode(query_params)}' if query_params else ''
   formatted_path = path
@@ -103,19 +116,17 @@ def create_test_content(tag, endpoint_name, path, method, details, base_url):
 
   if method in ['patch', 'post', 'put']:
     content += f"""
-@pytest.mark.asyncio
-async def test_{operation_id}(client: TestClient):
+def test_{operation_id}({', '.join(fixture_names)}):
   \"\"\"{summary}\"\"\"
   path = {path_value_prefix}'{path_value}'
-  payload = {payload_fixture}
+  payload = {fixture_names[0] if fixture_names else '{}'}
   response = client.{method}(path, json=payload)
   assert response.status_code == 200
 
 """
   else:
     content += f"""
-@pytest.mark.asyncio
-async def test_{operation_id}(client: TestClient):
+def test_{operation_id}({', '.join(fixture_names)}):
   \"\"\"{summary}\"\"\"
   path = {path_value_prefix}'{path_value}'
   response = client.{method}(path)
@@ -155,10 +166,54 @@ def parse_fixture_name(name: str) -> str:
   return f'_{name}' if starts_with_number(name) else name
 
 
+def create_params_fixtures_content(param):
+  fixture_name = param.get('name')
+  fixture_name = parse_fixture_name(fixture_name)
+
+  if fixture_name in existing_fixtures:
+    return ''
+
+  existing_fixtures.append(fixture_name)
+
+  schema = param.get('schema', {})
+  example_str = parse_schema_example(schema)
+
+  return parse_fixture_content(fixture_name, example_str)
+
+
+# Function to create fixtures file content for POST method payloads and path params
+def create_fixtures_content(paths):
+  content = '\n'.join([
+    '# pylint: disable=wildcard-import,unused-wildcard-import,invalid-name,line-too-long',
+    'import pytest\n\n',
+  ])
+
+  for path, methods in paths.items():
+    for method, details in methods.items():
+      if method.lower() in ['post', 'put', 'patch']:
+        operation_id = details.get('operationId', f"{method}_{path.replace('/', '_')}")
+        schema = details.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {})
+        example_str = parse_schema_example(schema)
+
+        fixture_name = f'{operation_id}_payload'
+        fixture_name = parse_fixture_name(fixture_name)
+        content += parse_fixture_content(fixture_name, example_str)
+
+        # Handle path parameter examples
+        params = details.get('parameters', [])
+
+        for param in params:
+          content += create_params_fixtures_content(param)
+
+  return content
+
+
 # Function to generate test files
-def generate_tests(spec, existing_tests, base_url):
+def generate_tests(spec, existing_tests):
   logging.info('Generating test files from OpenAPI spec')
   tag_paths = {}
+  servers = spec.get('servers', [])
+  path_prefix = servers[0]['url'] if servers else ''
 
   for path, methods in spec.get('paths', {}).items():
     for method, details in methods.items():
@@ -181,35 +236,40 @@ def generate_tests(spec, existing_tests, base_url):
 
     for path, methods in paths.items():
       for method, details in methods.items():
-        if method in SELECTED_METHODS:
-          endpoint_name = path.strip('/').replace('/', '_')
-          test_file_name = f'test_{method}_{endpoint_name}.py'
-          test_file_path = tag_dir / test_file_name
+        endpoint_name = path.strip('/').replace('/', '_')
+        test_file_name = f'test_{method}_{endpoint_name}.py'
+        test_file_path = tag_dir / test_file_name
+        path = path_prefix + path
 
-          if test_file_path.stem not in existing_tests:
-            logging.info(f'Creating test file {test_file_path}')
-            content = create_test_content(tag, endpoint_name, path, method, details, base_url)
+        if test_file_path.stem not in existing_tests:
+          logging.info(f'Creating test file {test_file_path}')
+          content = create_test_content(tag, endpoint_name, path, method, details)
+          with open(test_file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+          logging.info(f'Test file {test_file_path} created successfully')
+        else:
+          logging.info(f'Test file {test_file_path} already exists, skipping')
 
-            with open(test_file_path, 'w', encoding='utf-8') as f:
-              f.write(content)
-              logging.info(f'Test file {test_file_path} created successfully')
-          else:
-            logging.info(f'Test file {test_file_path} already exists, skipping')
+
+# Function to generate fixtures file
+def generate_fixtures(spec):
+  logging.info('Generating fixtures file from OpenAPI spec')
+  paths = spec.get('paths', {})
+  content = create_fixtures_content(paths)
+
+  fixtures_file_path = Path('tests/conftest.py')
+  with open(fixtures_file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+  logging.info(f'Fixtures file {fixtures_file_path} created successfully')
 
 
 # Main script execution
 def main():
-  if len(sys.argv) != 2:
-    logging.error('Usage: python gen.py <OpenAPI URL>')
-    sys.exit(1)
-
-  openapi_url = sys.argv[1]
-  parsed_url = urlparse(openapi_url)
-  base_url = f'{parsed_url.scheme}://{parsed_url.netloc}'
-
-  spec = load_openapi_spec(openapi_url)
+  spec = load_openapi_spec()
   existing_tests = get_existing_tests('tests')
-  generate_tests(spec, existing_tests, base_url)
+  generate_tests(spec, existing_tests)
+  generate_fixtures(spec)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,30 @@
+FROM python:3.11-alpine3.19
+
+# Set environment variables
+ENV PATH="/home/devuser/.local/bin:$PATH"
+ENV POETRY_HOME="/home/devuser/.local"
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+
+# Set the shell to /bin/ash and enable pipefail
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+# Install dependencies
+RUN apk update \
+  && apk add --no-cache curl git
+
+# Install Poetry for the root user (temporarily)
+RUN curl -sSL https://install.python-poetry.org | python -
+
+# Install Poetry Plugin: Shell
+RUN poetry self add poetry-plugin-shell
+
+# Create a non-root user without a password
+RUN adduser -D -h /home/devuser -s /bin/sh devuser \
+  && chown -R devuser:devuser /home/devuser
+
+# Switch to the devuser
+USER devuser
+WORKDIR /workspaces
+ENV POETRY_VIRTUALENVS_IN_PROJECT=false
+
+CMD ["sh"]

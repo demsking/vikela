@@ -241,119 +241,6 @@
         }
       }
     },
-    "nodePackages.nodemon@latest": {
-      "last_modified": "2024-06-12T20:55:33Z",
-      "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#nodePackages.nodemon",
-      "source": "devbox-search",
-      "version": "3.1.3",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/9l1ajnkynanjd7jav3ai5j4z8zfh4a8l-nodemon-3.1.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/9l1ajnkynanjd7jav3ai5j4z8zfh4a8l-nodemon-3.1.3"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/62aygf8gxa837lzwifqd5bh318lch7rc-nodemon-3.1.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/62aygf8gxa837lzwifqd5bh318lch7rc-nodemon-3.1.3"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/afkhzhmv03f0m5q92fngip4d48pzfq1r-nodemon-3.1.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/afkhzhmv03f0m5q92fngip4d48pzfq1r-nodemon-3.1.3"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/1pfa9bl0cmvl4yflnqhn26h9fc51adgj-nodemon-3.1.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/1pfa9bl0cmvl4yflnqhn26h9fc51adgj-nodemon-3.1.3"
-        }
-      }
-    },
-    "nodejs@latest": {
-      "last_modified": "2024-06-18T11:39:17Z",
-      "plugin_version": "0.0.2",
-      "resolved": "github:NixOS/nixpkgs/56fc115880db6498245adecda277ccdb33025bc2#nodejs_22",
-      "source": "devbox-search",
-      "version": "22.3.0",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/ig6c5qlywzk9f4zwf4hdpnyyx91vyqyc-nodejs-22.3.0",
-              "default": true
-            },
-            {
-              "name": "libv8",
-              "path": "/nix/store/zg4vwp25r1v52vm2mxd6v64c1gr3jbj9-nodejs-22.3.0-libv8"
-            }
-          ],
-          "store_path": "/nix/store/ig6c5qlywzk9f4zwf4hdpnyyx91vyqyc-nodejs-22.3.0"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/j2pwm80va47mfz7r5w1640rm6b9sp269-nodejs-22.3.0",
-              "default": true
-            },
-            {
-              "name": "libv8",
-              "path": "/nix/store/j2lx401mqs3w7swg713irnnsfn88f8sx-nodejs-22.3.0-libv8"
-            }
-          ],
-          "store_path": "/nix/store/j2pwm80va47mfz7r5w1640rm6b9sp269-nodejs-22.3.0"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/3cqbw1xcmc0xml8s3ys7jviaxvqyjldy-nodejs-22.3.0",
-              "default": true
-            },
-            {
-              "name": "libv8",
-              "path": "/nix/store/zk7izr97gl525arvyi4mfwxnhx5wl7hx-nodejs-22.3.0-libv8"
-            }
-          ],
-          "store_path": "/nix/store/3cqbw1xcmc0xml8s3ys7jviaxvqyjldy-nodejs-22.3.0"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/zklzfb51mxs8pqdpwh6h51jkir50hq54-nodejs-22.3.0",
-              "default": true
-            },
-            {
-              "name": "libv8",
-              "path": "/nix/store/5dmd41abvjrw0chbz9m2yk27h61vpva9-nodejs-22.3.0-libv8"
-            }
-          ],
-          "store_path": "/nix/store/zklzfb51mxs8pqdpwh6h51jkir50hq54-nodejs-22.3.0"
-        }
-      }
-    },
     "poetry@latest": {
       "last_modified": "2024-07-04T01:58:53Z",
       "plugin_version": "0.0.4",
@@ -755,70 +642,6 @@
         }
       }
     },
-    "python311Packages.python-dotenv@latest": {
-      "last_modified": "2024-07-07T16:08:25Z",
-      "resolved": "github:NixOS/nixpkgs/ab82a9612aa45284d4adf69ee81871a389669a9e#python311Packages.python-dotenv",
-      "source": "devbox-search",
-      "version": "1.0.1",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/2y83qy2i22hyi6ylbg7bhzr4lzabrb7q-python3.11-python-dotenv-1.0.1",
-              "default": true
-            },
-            {
-              "name": "dist",
-              "path": "/nix/store/f938pizpydzbyab9w5jv6qkky4nw0537-python3.11-python-dotenv-1.0.1-dist"
-            }
-          ],
-          "store_path": "/nix/store/2y83qy2i22hyi6ylbg7bhzr4lzabrb7q-python3.11-python-dotenv-1.0.1"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/72aj41g35lgn4iv5yfi3dz7qk7m9rxx8-python3.11-python-dotenv-1.0.1",
-              "default": true
-            },
-            {
-              "name": "dist",
-              "path": "/nix/store/0daa02fw84lkkjw2dd2azfz45vjicw3c-python3.11-python-dotenv-1.0.1-dist"
-            }
-          ],
-          "store_path": "/nix/store/72aj41g35lgn4iv5yfi3dz7qk7m9rxx8-python3.11-python-dotenv-1.0.1"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/20cq3mqnjwcpqjm9sizgxw1a7429jywy-python3.11-python-dotenv-1.0.1",
-              "default": true
-            },
-            {
-              "name": "dist",
-              "path": "/nix/store/6wndkrk5f32smbxf1wjyixna77whshra-python3.11-python-dotenv-1.0.1-dist"
-            }
-          ],
-          "store_path": "/nix/store/20cq3mqnjwcpqjm9sizgxw1a7429jywy-python3.11-python-dotenv-1.0.1"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/p4rm5s52icrr6cmf9kag4lq4gad913zj-python3.11-python-dotenv-1.0.1",
-              "default": true
-            },
-            {
-              "name": "dist",
-              "path": "/nix/store/603xcjpkqqckjf4zpd57dip6y71ywmm4-python3.11-python-dotenv-1.0.1-dist"
-            }
-          ],
-          "store_path": "/nix/store/p4rm5s52icrr6cmf9kag4lq4gad913zj-python3.11-python-dotenv-1.0.1"
-        }
-      }
-    },
     "python311Packages.reorder-python-imports@latest": {
       "last_modified": "2024-06-12T20:55:33Z",
       "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#python311Packages.reorder-python-imports",
@@ -949,7 +772,7 @@
     },
     "python@3.11": {
       "last_modified": "2024-06-12T20:55:33Z",
-      "plugin_version": "0.0.3",
+      "plugin_version": "0.0.4",
       "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#python3",
       "source": "devbox-search",
       "version": "3.11.9",

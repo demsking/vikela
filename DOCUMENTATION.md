@@ -79,7 +79,7 @@ environment variables:
 | Variable Name                      | Description                                                                                | Default Value                 |
 |------------------------------------|--------------------------------------------------------------------------------------------|-------------------------------|
 | `TZ`                               | Time zone for the application.                                                             | `Africa/Douala`               |
-| `WORKER`                           | Number of workers for the application.                                                     | `multiprocessing.cpu_count()` |
+| `WORKERS`                          | Number of workers for the application.                                                     | `multiprocessing.cpu_count()` |
 | `ROOT_PATH`                        | Root path for the API.                                                                     | `/api`                        |
 | `CLIENT_USERAGENT`                 | User-agent string used for client requests.                                                | `vikela/{version}`            |
 | `COUCHDB_URL`                      | URL for the CouchDB instance.                                                              |                               |

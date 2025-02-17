@@ -34,11 +34,6 @@ include = []
 "Source" = "https://gitlab.com/demsking/vikela"
 "Tracker" = "https://gitlab.com/demsking/vikela/-/issues"
 
-[[tool.poetry.source]]
-name = "test"
-url = "https://test.pypi.org/simple/"
-secondary = true
-
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
 dataclasses-json = "^0.6.6"

@@ -3,6 +3,9 @@ target-version = "py311"
 indent-width = 2
 line-length = 128
 
+[format]
+quote-style = "single"
+
 [lint]
 ignore = [
   "E501",   # ignore line too long

@@ -1,4 +1,4 @@
-# Copyright 2024 Sébastien Demanou. All Rights Reserved.
+# Copyright 2024-2025 Sébastien Demanou. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import multiprocessing
+
 from oremi_core.vars import getenv
 
 from .package import APP_NAME
@@ -30,7 +32,9 @@ COUCHDB_AUTH_ROLES = getenv('COUCHDB_AUTH_ROLES', default='_admin')
 COUCHDB_AUTH_USERNAME = getenv('COUCHDB_AUTH_USERNAME')
 COUCHDB_AUTH_TOKEN = getenv('COUCHDB_AUTH_TOKEN')
 
-WORKER = getenv('WORKER', default=0, expected_type=int)
+WORKERS = getenv('WORKERS', default=multiprocessing.cpu_count(), expected_type=int)
+"""The number of worker processes to run for handling incoming API requests. By default, it uses
+the number of CPU cores available on the system."""
 
 DEFAULT_USER_GROUPS = getenv(
   name='DEFAULT_USER_GROUPS',

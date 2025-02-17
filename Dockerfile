@@ -27,6 +27,9 @@ RUN poetry install --no-root --no-interaction --no-ansi --only=main
 ## Stage 2: Runtime environment
 FROM python:3.11-alpine3.19
 
+# Set the shell to /bin/ash and enable pipefail
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
 # Create a non-root user and group
 RUN addgroup -S olumulo && adduser -S olumulo -G olumulo
 

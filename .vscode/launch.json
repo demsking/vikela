@@ -13,7 +13,7 @@
         "--port", "6303"
       ],
       "jinja": true,
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/.devcontainer/.env"
     }
   ]
 }

@@ -6,32 +6,14 @@ IMAGE_NAME := demsking/$(APP_NAME)
 shell:
 	tmuxinator
 
+stop:
+	tmux kill-session -t vikela
+
 install:
 	poetry install
 
-up:
-	docker compose up --build -d --remove-orphans
-
-restart:
-	docker compose restart
-
-watch:
-	docker compose watch server
-
-down:
-	docker compose down
-
-config:
-	docker compose config
-
 logs:
-	docker compose logs -f
-
-ps:
-	docker compose ps
-
-stats:
-	docker compose stats
+	docker compose -f .devcontainer/workspace.yaml -p vikela_devcontainer logs -f
 
 gen-tests:
 	python gen.py http://localhost:26303/api/openapi.json
@@ -166,7 +148,7 @@ multiplatform-image: build/context
 	  --label "org.opencontainers.image.source=$(shell python metadata.py repository)" \
 	  --label "org.opencontainers.image.url=$(shell python metadata.py repository)" \
 	  --label "org.opencontainers.image.documentation=$(shell python metadata.py documentation)" \
-	  --label "org.opencontainers.image.vendor=Vikela" \
+	  --label "org.opencontainers.image.vendor=Sébastien Demanou" \
 	  --label "org.opencontainers.image.licenses=$(shell python metadata.py license)"
 
 image-test:

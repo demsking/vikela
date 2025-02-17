@@ -1,4 +1,4 @@
-# Copyright 2024 Sébastien Demanou. All Rights Reserved.
+# Copyright 2024-2025 Sébastien Demanou. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
 # ==============================================================================
 import json
 import logging
-import multiprocessing
 
 import uvicorn.config
 
 from vikela import api
-from vikela.utils.config import WORKER
+from vikela.utils.config import WORKERS
 from vikela.utils.logger import logger
 from vikela.utils.package import APP_NAME
 from vikela.utils.package import APP_VERSION
@@ -32,7 +31,6 @@ def get_log_config():
 
 def main():
   verbose = logger.isEnabledFor(logging.DEBUG)
-  workers = WORKER or multiprocessing.cpu_count()
   log_config = get_log_config() if not verbose else uvicorn.config.LOGGING_CONFIG
 
   logger.info(f'Starting {APP_NAME}/{APP_VERSION}')
@@ -42,7 +40,7 @@ def main():
     app=api,
     host='0.0.0.0',
     port=6303,
-    workers=workers if not verbose else 1,
+    workers=WORKERS,
     server_header=False,
     use_colors=True,
     proxy_headers=True,

@@ -1,72 +1,35 @@
 ---
 services:
-  couchdb:
-    image: couchdb:3.3.3
-    ports:
-      - 25984:5984
-    environment:
-      COUCHDB_USER: $COUCHDB_USER
-      COUCHDB_PASSWORD: $COUCHDB_PASSWORD
-      COUCHDB_SECRET: $COUCHDB_SECRET
-    volumes:
-      - ./deployment/couchdb/local.ini:/opt/couchdb/etc/local.d/docker.ini
-
-  server:
+  devcontainer:
     build:
       context: .
-      args:
-        APP_NAME: vikela
-        APP_VERSION: dev
-    depends_on:
-      - couchdb
-    user: root
-    environment:
-      TZ: 'Africa/Douala'
-      COUCHDB_URL: "http://couchdb:5984"
-      JWT_SECRET_KEY: $JWT_SECRET_KEY
-      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: $JWT_ACCESS_TOKEN_EXPIRE_MINUTES
-      COUCHDB_AUTH_USERNAME: $COUCHDB_AUTH_USERNAME
-      COUCHDB_AUTH_TOKEN: $COUCHDB_AUTH_TOKEN
-      LOG_LEVEL: 'debug'
-    ports:
-      - 26303:6303
-    develop:
-      watch:
-        - action: rebuild
-          path: Dockerfile
-        - action: rebuild
-          path: poetry.lock
-        - action: sync+restart
-          path: DOCUMENTATION.md
-          target: /opt/demanou/DOCUMENTATION.md
-        - action: sync+restart
-          path: vikela
-          target: /opt/demanou/vikela
-        - action: sync+restart
-          path: vikela_core
-          target: /opt/demanou/vikela_core
-        - action: sync+restart
-          path: vikela_models
-          target: /opt/demanou/vikela_models
-        - action: rebuild
-          path: bin/
-          target: /opt/demanou/bin
-    # command: --reload --reload-dir /opt/demanou/vikela --workers 1
-    entrypoint: python /opt/demanou/vikela
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ..:/workspaces:cached
+    command: sleep infinity
     labels:
       - "vikela.enable=true"
       - "traefik.http.routers.vikela.service=vikela"
       - "traefik.http.routers.vikela.rule=PathPrefix(`/auth`)"
       - "traefik.http.routers.vikela.entryPoints=web"
-      - "traefik.http.middlewares.vikela.forwardAuth.address=http://server:6303/api/verify?rd=http://localhost:6380/auth"
+      - "traefik.http.middlewares.vikela.forwardAuth.address=http://devcontainer:6303/api/verify?rd=http://localhost:6380/auth"
       - "traefik.http.middlewares.vikela.forwardAuth.trustForwardHeader=true"
       - "traefik.http.middlewares.vikela.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
       - "traefik.http.services.vikela.loadbalancer.server.port=6303"
 
+  couchdb:
+    image: couchdb:3.3.3
+    ports:
+      - 55984:5984
+    environment:
+      COUCHDB_USER: $COUCHDB_USER
+      COUCHDB_PASSWORD: $COUCHDB_PASSWORD
+      COUCHDB_SECRET: $COUCHDB_SECRET
+    volumes:
+      - ./config/couchdb/local.ini:/opt/couchdb/etc/local.d/docker.ini
+
   traefik:
     image: traefik:v3.0
-    depends_on:
-      - server
     command:
       - "--api.insecure=true"
       - "--api.dashboard=false"

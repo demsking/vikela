@@ -1,0 +1,44 @@
+{
+  "name": "Vikela",
+  "dockerComposeFile": "workspace.yaml",
+  "service": "devcontainer",
+  "runServices": ["couchdb", "traefik", "public", "protected"],
+  "workspaceFolder": "/workspaces",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "poetry install",
+  "forwardPorts": [6380, 55984, 6380],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-python.pylint",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "GitHub.copilot"
+      ],
+      "settings": {
+        "files.exclude": {
+          "**/.devbox": true,
+          "**/.venv": true
+        },
+        "python.defaultInterpreterPath": "$POETRY_HOME/venv/bin/python",
+        "python.pythonPath": "$POETRY_HOME/venv/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "pylint.importStrategy": "fromEnvironment",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true,
+        "terminal.integrated.profiles.linux": {
+          "sh": {
+            "path": "/bin/sh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "sh",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
+      }
+    }
+  }
+}

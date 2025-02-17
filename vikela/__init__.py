@@ -1,4 +1,4 @@
-# Copyright 2024 Sébastien Demanou. All Rights Reserved.
+# Copyright 2024-2025 Sébastien Demanou. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 import os
+from contextlib import asynccontextmanager
 
 import fastapi
 import httpx
@@ -21,14 +22,15 @@ from fastapi.responses import JSONResponse
 
 from .controllers.auth import AuthController
 from .endpoints.account import create_account_endpoints
+from .endpoints.docs import create_docs_endpoints
 from .endpoints.onefa import create_1fa_endpoints
 from .endpoints.proxy import create_proxy_endpoints
 from .endpoints.twofa import create_2fa_endpoints
 from .endpoints.version import create_version_endpoints
+from .utils.api import parse_path
 from .utils.config import CLIENT_USERAGENT
 from .utils.config import COUCHDB_AUTH_ROLES
 from .utils.config import COUCHDB_URL
-from .utils.config import ROOT_PATH
 from .utils.logger import logger
 from .utils.package import APP_NAME
 from .utils.package import APP_VERSION
@@ -73,24 +75,35 @@ tag_proxy = {
   'description': 'Endpoints that serve as proxies for authentication and authorization, providing access token verification and user information retrieval. These endpoints manage user sessions and set custom headers based on authenticated user data.',
 }
 
+BASE_PATH = parse_path('/api')
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+  # execute the app lifespan atr the start of the context manager and at the end
+  yield
+
 api = FastAPI(
   docs_url=None,
-  redoc_url='/docs',
+  redoc_url=None,
+  lifespan=lifespan,
   title=SERVICE_TITLE,
   version=APP_VERSION,
-  # summary=APP_DESCRIPTION,
   description=SERVICE_DESCRIPTION,
-  root_path=ROOT_PATH,
+  root_path=BASE_PATH,
+  servers=[
+    {'url': BASE_PATH},
+  ],
   license_info={
     'name': 'Apache 2.0',
     'url': 'http://www.apache.org/licenses/LICENSE-2.0.html',
   },
   openapi_tags=[
-    tag_version,
     tag_account,
     tag_1fa,
     tag_2fa,
     tag_proxy,
+    tag_version,
   ],
 )
 
@@ -109,6 +122,7 @@ create_account_endpoints(tag_account['name'], api, auth_controller)
 create_1fa_endpoints(tag_1fa['name'], api, auth_controller)
 create_2fa_endpoints(tag_2fa['name'], api, auth_controller)
 create_proxy_endpoints(tag_proxy['name'], api, auth_controller)
+create_docs_endpoints(api)
 
 
 @api.exception_handler(fastapi.exceptions.ResponseValidationError)
